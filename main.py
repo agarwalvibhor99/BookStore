@@ -20,16 +20,32 @@ def login():
             cur = con.cursor()
             cur.execute(
                 'SELECT * FROM Customer WHERE username = ? AND password = ?', (username, password,))
-            account = cur.fetchone()
-            print("Account is", account)
+            accountCustomer = cur.fetchone()
+            print("username, password", (username, password))
+            cur.execute(
+                'SELECT * FROM Manager WHERE username = ? AND password = ?', (username, password,))
+            accountManager = cur.fetchone()
+            # print("username, password", (username, password))
+            print("Account Manager: ", accountManager)
+            print("Account Customer:", accountCustomer)
+            # print("Account is", account)
             # print("Session is:", session['id'])
-            if account:
+            if accountCustomer:
                 # Create session data, we can access this data in other routes
                 session['loggedin'] = True
                 # session['id'] = account['username']
-                session['username'] = account[0]
+                session['username'] = accountCustomer[0]
+                session['type'] = 0
                 # Redirect to home page
                 return redirect(url_for('home'))
+            elif accountManager:
+                # Create session data, we can access this data in other routes
+                session['loggedin'] = True
+                # session['id'] = account['username']
+                session['username'] = accountManager[0]
+                session['type'] = 1
+                # Redirect to home page
+                return redirect(url_for('managerhome'))
             else:
                 # Account doesnt exist or username/password incorrect
                 msg = 'Incorrect username/password!'
@@ -71,9 +87,12 @@ def register():
             cursor = con.cursor()
             cursor.execute(
                 'SELECT * FROM Customer WHERE username = ?', (username,))
-            account = cursor.fetchone()
+            accountCustomer = cursor.fetchone()
+            cursor.execute(
+                'SELECT * FROM Manger WHERE username = ?', (username,))
+            accountManager = cursor.fetchone()
             # If account exists show error and validation checks
-            if account:
+            if accountCustomer or accountManager:
                 msg = 'Account already exists!'
             elif not re.match(r'[A-Za-z0-9]+', username):
                 msg = 'Username must contain only characters and numbers!'
@@ -97,14 +116,27 @@ def register():
 @app.route('/pythonlogin/home')
 def home():
     # Check if user is loggedin
-    if 'loggedin' in session:
+    if 'loggedin' in session and session['type'] == 0:
         # User is loggedin show them the home page
         return render_template('home.html', username=session['username'])
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
+# http://localhost:5000/pythinlogin/managerhome - this will be the home page, only accessible for loggedin users
+
+
+@app.route('/pythonlogin/managerhome')
+def managerhome():
+    # Check if user is loggedin
+    if 'loggedin' in session and session['type'] == 1:
+        # User is loggedin show them the home page
+        return render_template('managerhome.html', username=session['username'])
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
 
 # http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
+
+
 @app.route('/pythonlogin/profile')
 def profile():
     # Check if user is loggedin
