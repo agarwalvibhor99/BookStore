@@ -134,6 +134,119 @@ def managerhome():
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
+
+@app.route('/pythonlogin/newBook', methods=['GET', 'POST'])
+def newBook():
+    if 'loggedin' in session and session['type'] == 1:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST' and 'name' in request.form and 'ISBN' in request.form and 'date' in request.form and 'publisher' in request.form and 'stock' in request.form and 'price' in request.form and 'subject' in request.form and 'language' in request.form and 'noOfPages' in request.form and 'authorID' in request.form and 'authorName' in request.form:
+            # Create variables for easy access
+            name = request.form['name']
+            ISBN = request.form['ISBN']
+            date = request.form['date']
+            stock = request.form['stock']
+            price = request.form['price']
+            subject = request.form['subject']
+            language = request.form['language']
+            noOfPages = request.form['noOfPages']
+            authorID = request.form['authorID']
+            authorName = request.form['authorName']
+            keyword = request.form['keyword']
+            publisher = request.form['publisher']
+            # print("details book: ", name, ISBN, date, stock, price,
+            #       subject, language, noOfPages, authorID, authorName, keyword)
+
+            # Check if account exists using MySQL
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM bookData WHERE ISBN = ?', (ISBN,))
+                book = cursor.fetchone()
+
+                # If account exists show error and validation checks
+                if book:
+                    msg = 'Book already exists!'
+
+                elif not name or not ISBN or not date or not stock or not price or not subject or not language or not noOfPages or not authorID or not authorName or not keyword or not publisher:
+                    msg = 'Please fill out the form!'
+                else:
+                    # Account doesnt exists and the form data is valid, now insert new account into accounts table
+                    cursor.execute(
+                        'INSERT INTO bookData(ISBN, name, authorID, publisher, date, stock, price, subject, noOfPages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', (ISBN, name, authorID, publisher, date, stock, price, subject, noOfPages))
+                    cursor.execute(
+                        'SELECT * FROM Author WHERE authorID = ?', (authorID))
+                    author = cursor.fetchone()
+                # add multiple author for
+                # If author exists show error and validation checks
+                    if not author:
+                        cursor.execute(
+                            'INSERT INTO Author(authorID, name) VALUES (?, ?)', (authorID, name))
+                    else:
+                        cursor.execute(
+                            'INSERT INTO writtenBY(ISBN, authorID) VALUES (?, ?)', (ISBN, authorID))
+                    # add keyword
+                    con.commit()
+                    msg = 'You have successfully added Book!'
+
+        elif request.method == 'POST':
+            # Form is empty... (no POST data)
+            msg = 'Please fill out the form!'
+            print(request.form)
+
+        return render_template('newBook.html', msg=msg, username=session['username'])
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/newManager', methods=['GET', 'POST'])
+def newManager():
+    if 'loggedin' in session and session['type'] == 1:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST' and 'firstName' in request.form and 'lastName' in request.form and 'phone' in request.form and 'address' in request.form and 'username' in request.form and 'password' in request.form and 'salary' in request.form:
+            # Create variables for easy access
+            firstName = request.form['firstName']
+            lastName = request.form['lastName']
+            phone = request.form['phone']
+            address = request.form['address']
+            username = request.form['username']
+            password = request.form['password']
+            salary = request.form['salary']
+            # not checking books added 0 from default
+            # print("details book: ", name, ISBN, date, stock, price,
+            #       subject, language, noOfPages, authorID, authorName, keyword)
+
+            # Check if account exists using MySQL
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM Manager WHERE username = ?', (username,))
+                account = cursor.fetchone()
+
+                # If account exists show error and validation checks
+                if account:
+                    msg = 'Manager already exists!'
+
+                elif not firstName or not lastName or not username or not password or not phone or not address or not salary:
+                    msg = 'Please fill out the form!'
+                else:
+                    # Account doesnt exists and the form data is valid, now insert new account into accounts table
+                    cursor.execute(
+                        'INSERT INTO Manager(username, password, firstName, lastName, phone, address, salary) VALUES (?, ?, ?, ?, ?, ?, ?)', (username, password, firstName, lastName, phone, address, salary))
+                    # add keyword
+                    con.commit()
+                    msg = 'You have successfully added new Manager!'
+
+        elif request.method == 'POST':
+            # Form is empty... (no POST data)
+            msg = 'Please fill out the form!'
+            print(request.form)
+
+        return render_template('newManager.html', msg=msg, username=session['username'])
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
 # http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
 
 
@@ -142,12 +255,18 @@ def profile():
     # Check if user is loggedin
     if 'loggedin' in session:
         # We need all the account info for the user so we can display it on the profile page
-        cursor = con.cursor()
-        cursor.execute('SELECT * FROM accounts WHERE id = %s',
-                       (session['id'],))
-        account = cursor.fetchone()
-        # Show the profile page with account info
-        return render_template('profile.html', account=account)
+        with sql.connect("Book.db") as con:
+            cursor = con.cursor()
+            if(session['type'] == 1):
+                cursor.execute('SELECT * FROM Manager WHERE username = ?',
+                               (session['username'],))
+                account = cursor.fetchone()
+            else:
+                cursor.execute('SELECT * FROM Customer WHERE username = ?',
+                               (session['username'],))
+                account = cursor.fetchone()
+            # Show the profile page with account info
+            return render_template('profile.html', account=account)
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 

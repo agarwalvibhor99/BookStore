@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manager Home{% endblock %}
+
+{% block content %}
+
+<p>Welcome Manager, {{ username }}!</p>
+<h2>New Book Details</h2>
+<form action="{{ url_for('newBook') }}" method="post" autocomplete="off">
+                <label for="ISBN">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="ISBN" placeholder="ISBN" id="ISBN" required>
+
+                <label for="name">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="name" placeholder="name" id="name" required>
+
+				<label for="authorID">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="authorID" placeholder="authorID" id="authorID" required>
+				<label for="authorName">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="authorName" placeholder="author name" id="authorName" required>
+
+				<label for="stock">
+					<i class="fas fa-user"></i>
+				</label>
+                <input type="number" name="stock" placeholder="stock" id="stock" required>
+
+				<label for="price">
+					<i class="fas fa-user"></i>
+				</label>
+                <input type="number" name="price" placeholder="price" id="price" required>
+
+                <label for="subject">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="subject" name="subject" placeholder="subject" id="subject" required>
+				<label for="language">
+					<i class="fas fa-lock"></i>
+				</label>
+				<input type="text" name="language" placeholder="language" id="language" required>
+				<label for="noOfPages">
+					<i class="fas fa-lock"></i>
+				</label>
+				<input type="text" name="noOfPages" placeholder="Number of Pages" id="noOfPages" required>
+				<label for="publisher">
+					<i class="fas fa-lock"></i>
+				</label>
+				<input type="text" name="publisher" placeholder="publisher" id="publisher" required>
+				<label for="date">
+					<i class="fas fa-lock"></i>
+				</label>
+				<input type="date" name="date" placeholder="date" id="date" required>
+				<label for="keyword">
+					<i class="fas fa-lock"></i>
+				</label>
+				<input type="keyword" name="keyword" placeholder="keyword" id="keyword" required>
+				<div class="msg">{{ msg }}</div>
+				<input type="submit" value="Add new Book">
+			</form>
+{% endblock %}
