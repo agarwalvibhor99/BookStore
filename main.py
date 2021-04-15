@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, session, redirect
 import sqlite3 as sql
 import re
 import datetime
 app = Flask(__name__)
+app.secret_key = '123456'
 
 
 @app.route('/pythonlogin/', methods=['GET', 'POST'])
@@ -20,11 +21,13 @@ def login():
             cur.execute(
                 'SELECT * FROM Customer WHERE username = ? AND password = ?', (username, password,))
             account = cur.fetchone()
+            print("Account is", account)
+            # print("Session is:", session['id'])
             if account:
                 # Create session data, we can access this data in other routes
                 session['loggedin'] = True
-                session['id'] = account['id']
-                session['username'] = account['username']
+                # session['id'] = account['username']
+                session['username'] = account[0]
                 # Redirect to home page
                 return redirect(url_for('home'))
             else:
@@ -53,11 +56,15 @@ def register():
     # Output message if something goes wrong...
     msg = ''
     # Check if "username", "password" and "email" POST requests exist (user submitted form)
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'firstName' in request.form and 'lastName' in request.form and 'address' in request.form and 'phone' in request.form:
         # Create variables for easy access
+        firstName = request.form['firstName']
+        lastName = request.form['lastName']
+        phone = request.form['phone']
+        address = request.form['address']
         username = request.form['username']
         password = request.form['password']
-        email = request.form['email']
+        # print(firstName, lastName, phone, address, username, password)
 
         # Check if account exists using MySQL
         with sql.connect("Book.db") as con:
@@ -68,16 +75,14 @@ def register():
             # If account exists show error and validation checks
             if account:
                 msg = 'Account already exists!'
-            elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-                msg = 'Invalid email address!'
             elif not re.match(r'[A-Za-z0-9]+', username):
                 msg = 'Username must contain only characters and numbers!'
-            elif not username or not password or not email:
+            elif not username or not password or not phone or not address or not firstName or not lastName:
                 msg = 'Please fill out the form!'
             else:
                 # Account doesnt exists and the form data is valid, now insert new account into accounts table
                 cursor.execute(
-                    'INSERT INTO Customer VALUES (2, ?, ?, ?)', (username, password, email,))
+                    'INSERT INTO Customer(username, password, firstName, lastName, phone, address) VALUES (?, ?, ?, ?, ?, ?)', (username, password, firstName, lastName, phone, address))
                 con.commit()
                 msg = 'You have successfully registered!'
 
