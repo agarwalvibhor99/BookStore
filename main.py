@@ -1,3 +1,6 @@
+# https://codeshack.io/login-system-python-flask-mysql/#packages
+
+
 from flask import Flask, render_template, request, url_for, session, redirect, jsonify
 import sqlite3 as sql
 import re
@@ -30,12 +33,14 @@ def login():
             print("Account Customer:", accountCustomer)
             # print("Account is", account)
             # print("Session is:", session['id'])
+            cartItem = {}
             if accountCustomer:
                 # Create session data, we can access this data in other routes
                 session['loggedin'] = True
                 # session['id'] = account['username']
                 session['username'] = accountCustomer[0]
                 session['type'] = 0
+                session['cartItem'] = cartItem
                 # Redirect to home page
                 return redirect(url_for('home'))
             elif accountManager:
@@ -318,6 +323,21 @@ def displayBookQuery():
                         "SELECT * FROM bookData WHERE name like ?", [value])
                     book = cursor.fetchall()
 
+                elif (reqType == "publisher"):
+                    cursor.execute(
+                        "SELECT * FROM bookData WHERE publisher like ?", [value])
+                    book = cursor.fetchall()
+
+                elif (reqType == "language"):
+                    cursor.execute(
+                        "SELECT * FROM bookData WHERE language like ?", [value])
+                    book = cursor.fetchall()
+
+                elif (reqType == "author"):
+                    cursor.execute(
+                        "SELECT * FROM bookData WHERE authorID = (SELECT authorID FROM Author WHERE name LIKE ?)", [value])
+                    book = cursor.fetchall()
+
                 # If account exists show error and validation checks
                 if not book:
                     msg = 'There are no books in the store with this name!'
@@ -326,6 +346,76 @@ def displayBookQuery():
                     print(book)
                     return render_template('displayAllBooks.html', data=book, username=session['username'])
 
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/createOrder')
+def createOrder():
+    # Check if user is loggedin
+    if 'loggedin' in session and session['type'] == 0:
+        # User is loggedin show them the home page
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM bookData')
+                book = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not book:
+                    msg = 'There are no books in the store!'
+                else:
+                    print(book)
+                    return render_template('createOrder.html', data=book, username=session['username'])
+
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/addToCart', methods=['GET', 'POST'])
+def addToCart():
+    if 'loggedin' in session and session['type'] == 0:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST' and 'quantity' in request.form and 'ISBN' in request.form:
+            # Create variables for easy access
+            quantString = 'quantity' + ISBN
+            ISBN = request.form['ISBN']
+            # print("Request form", request.form)
+            quantString = 'quantity' + ISBN
+            quantity = request.form['quantity']
+            # print("Quantity up", quantity)
+            # not checking books added 0 from default
+            # print("details book: ", name, ISBN, date, stock, price,
+            #       subject, language, noOfPages, authorID, authorName, keyword)
+
+            # Check if account exists using MySQL
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM bookData WHERE ISBN = ?', (ISBN,))
+                book = cursor.fetchone()
+                existingDict = session['cartItem']
+                # print(existingDict)
+                session['cartItem'] = {ISBN: quantity}
+                # print("session", session['cartItem'])
+                # ADD CODE TO CHECK QUANTITY
+                # print(book)
+
+                # If account exists show error and validation checks
+
+                if not quantity:
+                    msg = 'Please fill out the quantity!'
+
+        elif request.method == 'POST':
+            # Form is empty... (no POST data)
+            msg = 'Please fill out the form!'
+            # print(request.form)
+
+        return redirect(url_for('createOrder'))
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
