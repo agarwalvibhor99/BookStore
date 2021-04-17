@@ -16,7 +16,6 @@
           <th>Subject</th>
           <th>Number of Pages</th>
           <th>Quantity you want</th>
-          <th></th>
           
       </tr>
       </thead>    
@@ -30,13 +29,13 @@
                   <td style="text-align:center">{{item[4]}}</td> 
                   <td style="text-align:center">{{item[5]}}</td> 
                   <td style="text-align:center">{{item[6]}}</td> 
-                  <td><input type="number" name="quantity{{ item[0] }}" placeholder="Quantity" id="quantity"> </td>
-                  <input type="hidden" name="ISBN" value="{{ item[0] }}"/>
-                  <td><input type="submit" value="Add to Cart"></td>
+                  <td><input type="number" name="{{ item[0] }}" placeholder="Quantity" id="quantity"> </td>
+                  <input type="hidden" value="{{ item[0] }}"/>
                 </tr>
           {% endfor %}
       </tbody>
   </table>
+  <input type="submit" value="Add to Cart">
   </form>
-
+  <div class="msg">{{ msg }}</div>
 {% endblock %}

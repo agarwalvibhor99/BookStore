@@ -378,37 +378,57 @@ def createOrder():
 @app.route('/pythonlogin/addToCart', methods=['GET', 'POST'])
 def addToCart():
     if 'loggedin' in session and session['type'] == 0:
+        print("in if")
         msg = ''
+        print(request.form)
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
-        if request.method == 'POST' and 'quantity' in request.form and 'ISBN' in request.form:
+        if request.method == 'POST':
+
             # Create variables for easy access
-            quantString = 'quantity' + ISBN
-            ISBN = request.form['ISBN']
-            # print("Request form", request.form)
-            quantString = 'quantity' + ISBN
-            quantity = request.form['quantity']
+            print(request.form)
+            # quantString = 'quantity' + ISBN
+            # ISBN = request.form['ISBN']
+            # # print("Request form", request.form)
+            # quantString = 'quantity' + ISBN
+            # quantity = request.form['quantity']
+
             # print("Quantity up", quantity)
             # not checking books added 0 from default
             # print("details book: ", name, ISBN, date, stock, price,
             #       subject, language, noOfPages, authorID, authorName, keyword)
 
             # Check if account exists using MySQL
+            totalAmount = 0
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
-                cursor.execute(
-                    'SELECT * FROM bookData WHERE ISBN = ?', (ISBN,))
-                book = cursor.fetchone()
-                existingDict = session['cartItem']
+                i = 0
+                for key in request.form:
+                    print("iteration ", i)
+                    i += 1
+                    cursor.execute(
+                        'SELECT * FROM bookData WHERE ISBN = ?', (key,))
+                    book = cursor.fetchone()
+                    print("book info", book)
+                    msg = "not enough quantity of book " + \
+                        book[1] + " with ISBN " + key
+                    # print("quantity when high", int(request.form[key]))
+                    if(not request.form[key]):
+                        continue
+                    if(int(book[5]) < int(request.form[key])):
+                        return render_template('home.html', msg=msg)
+                    else:
+                        newQuantity = book[5]-int(request.form[key])
+                        cursor.execute(
+                            'UPDATE bookData SET stock = ? WHERE ISBN=?', (newQuantity, key))
+                        print("quantity updated")
                 # print(existingDict)
-                session['cartItem'] = {ISBN: quantity}
+                # session['cartItem'] = {ISBN: quantity}
+
                 # print("session", session['cartItem'])
                 # ADD CODE TO CHECK QUANTITY
                 # print(book)
 
                 # If account exists show error and validation checks
-
-                if not quantity:
-                    msg = 'Please fill out the quantity!'
 
         elif request.method == 'POST':
             # Form is empty... (no POST data)
