@@ -7,5 +7,20 @@
 <p>Welcome back, {{ username }}!</p>
 <p><a href="#">Create a New Order</p>
 <p><a href="#">Check Past Orders</p>
-<p><a href="#">List all Books</p>
-{% endblock %}
+<p><a href="{{ url_for('displayAllBooks') }}">List all Books: Sorted By (i) Publish Date (ii) average numerical score of comments (iii) average numerical store of trusted user feedbacks</p></a>
+<p>Search by on 
+    <form action="{{ url_for('displayBookQuery') }}" method="get">
+        
+        <input type="radio" id="author" name="type" value="author">
+        <label for="type">Author</label><br>
+        <input type="radio" id="publisher" name="type" value="publisher">
+        <label for="type">Publisher</label><br>
+        <input type="radio" id="name" name="type" value="name">
+        <label for="type">name</label><br>
+        <input type="radio" id="language" name="type" value="language">
+        <label for="type">language</label><br>
+        <input type="text" name="value" placeholder="Value" id="Value" required><br>
+        <input type="submit" value="Register">
+    </form>
+    <div class="msg">{{ msg }}</div>
+    {% endblock %}

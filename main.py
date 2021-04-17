@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, session, redirect
+from flask import Flask, render_template, request, url_for, session, redirect, jsonify
 import sqlite3 as sql
 import re
 import datetime
@@ -250,6 +250,7 @@ def newManager():
 # http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
 
 
+# create one profile for maanger and other for customer
 @app.route('/pythonlogin/profile')
 def profile():
     # Check if user is loggedin
@@ -268,6 +269,64 @@ def profile():
             # Show the profile page with account info
             return render_template('profile.html', account=account)
     # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+# Display all books
+# add for managers option there
+
+
+@app.route('/pythonlogin/displayAllBooks', methods=['GET', 'POST'])
+def displayAllBooks():
+    if 'loggedin' in session and (session['type'] == 1 or session['type'] == 0):
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM bookData')
+                book = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not book:
+                    msg = 'There are no books in the store!'
+                else:
+                    print(book)
+                    return render_template('displayAllBooks.html', data=book, username=session['username'])
+
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/displayBookQuery', methods=['GET', 'POST'])
+def displayBookQuery():
+    if 'loggedin' in session and (session['type'] == 1 or session['type'] == 0):
+        # print('in here')
+        msg = ''
+        print(request.query_string)
+        reqType = request.args['type']
+        value = request.args['value']
+        print(reqType, type(value))
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            print("in get")
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                if (reqType == "name"):
+                    print("in checking name")
+                    cursor.execute(
+                        "SELECT * FROM bookData WHERE name like ?", [value])
+                    book = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not book:
+                    msg = 'There are no books in the store with this name!'
+                    return render_template('home.html', msg=msg)
+                else:
+                    print(book)
+                    return render_template('displayAllBooks.html', data=book, username=session['username'])
+
+        # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
 
