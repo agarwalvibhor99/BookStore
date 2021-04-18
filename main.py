@@ -654,5 +654,52 @@ def addReview():
     return redirect(url_for('login'))
 
 
+@app.route('/pythonlogin/updateStock', methods=['GET', 'POST'])
+def updateStock():
+    if 'loggedin' in session and session['type'] == 1:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST' and 'ISBN' in request.form and 'stock' in request.form:
+            # Create variables for easy access
+            ISBN = request.form['ISBN']
+            stock = request.form['stock']
+            # print("details book: ", name, ISBN, date, stock, price,
+            #       subject, language, noOfPages, authorID, authorName, keyword)
+
+            # Check if account exists using MySQL
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM bookData WHERE ISBN = ?', (ISBN,))
+                book = cursor.fetchone()
+
+                # If account exists show error and validation checks
+                if not book:
+                    msg = "Book doesn't exists!"
+
+                elif not ISBN or not stock:
+                    msg = 'Please fill out the form!'
+                else:
+                    cursor.execute('UPDATE bookData SET stock = stock + ? WHERE ISBN = ?',
+                                   (stock, ISBN,))
+                    cursor.execute(
+                        'UPDATE Manager SET booksAdded = booksAdded + ? WHERE username = ?', (stock, session['username'],))
+
+                # add multiple author for
+                # If author exists show error and validation checks
+
+                    con.commit()
+                    msg = 'You have successfully updated Inventory!'
+
+        elif request.method == 'POST':
+            # Form is empty... (no POST data)
+            msg = 'Please fill out the form!'
+            print(request.form)
+
+        return render_template('updateStock.html', msg=msg, username=session['username'])
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)

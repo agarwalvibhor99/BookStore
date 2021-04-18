@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manager Home{% endblock %}
+
+{% block content %}
+
+<p>Welcome Manager, {{ username }}!</p>
+<h2>Update Inventory</h2>
+<form action="{{ url_for('updateStock') }}" method="post" autocomplete="off">
+                <label for="ISBN">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="ISBN" placeholder="ISBN" id="ISBN" required>
+
+				<label for="stock">
+					<i class="fas fa-user"></i>
+				</label>
+                <input type="number" name="stock" placeholder="stock" id="stock" required>
+				<input type="submit" value="Update Inventory">
+			</form>
+{% endblock %}
