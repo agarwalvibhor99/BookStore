@@ -511,6 +511,7 @@ def viewOrderDetail():
         # User is loggedin show them the home page
         msg = ''
         orderID = request.args['orderID']
+        totalAmt = request.args['totalAmt']
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'GET':
 
@@ -522,12 +523,28 @@ def viewOrderDetail():
                 cursor.execute(
                     'SELECT * FROM orderItem WHERE orderID = ?', (orderID,))
                 orderItem = cursor.fetchall()
+                myList = []
+                # print(type(orderItem))
+                for item in orderItem:
+                    cursor.execute(
+                        'SELECT name FROM bookData WHERE ISBN = ?', (item[1],))
+                    name = cursor.fetchone()
+                    item = list(item)
+
+                    name = list(name)
+                    name = name[0]
+                    myList.append(item)
+
+                    item.append(name)
+
+                    item = tuple(item)
 
                 # If account exists show error and validation checks
+                # print(orderItem)
                 if not orderItem:
                     msg = "There is some problem"
                 else:
-                    return render_template('viewOrderDetail.html', data=orderItem, orderID=orderID, username=session['username'])
+                    return render_template('viewOrderDetail.html', data=myList, orderID=orderID, totalAmt=totalAmt, username=session['username'])
 
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
