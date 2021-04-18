@@ -78,6 +78,13 @@ c.execute("""CREATE TABLE IF NOT EXISTS Review (
             FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
             FOREIGN KEY(username) REFERENCES Customer(username)
           )""")
+
+c.execute("""CREATE TABLE IF NOT EXISTS Trust (
+            fromUsername TEXT,
+            toUsername TEXT,
+            PRIMARY KEY(fromUsername, toUsername)
+          )""")
+
 # c.execute("""CREATE TABLE IF NOT EXISTS Order(
 #             username TEXT,
 #             ISBN TEXT,

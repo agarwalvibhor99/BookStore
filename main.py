@@ -99,7 +99,7 @@ def register():
                 'SELECT * FROM Customer WHERE username = ?', (username,))
             accountCustomer = cursor.fetchone()
             cursor.execute(
-                'SELECT * FROM Manger WHERE username = ?', (username,))
+                'SELECT * FROM Manager WHERE username = ?', (username,))
             accountManager = cursor.fetchone()
             # If account exists show error and validation checks
             if accountCustomer or accountManager:
@@ -111,7 +111,7 @@ def register():
             else:
                 # Account doesnt exists and the form data is valid, now insert new account into accounts table
                 cursor.execute(
-                    'INSERT INTO Customer(username, password, firstName, lastName, phone, address) VALUES (?, ?, ?, ?, ?, ?)', (username, password, firstName, lastName, phone, address))
+                    'INSERT INTO Customer(username, password, firstName, lastName, phone, address, trustCount) VALUES (?, ?, ?, ?, ?, ?, ?)', (username, password, firstName, lastName, phone, address, 0))
                 con.commit()
                 msg = 'You have successfully registered!'
 
@@ -285,16 +285,61 @@ def profile():
 # add for managers option there
 
 
+@app.route('/pythonlogin/addTrust', methods=['GET', 'POST'])
+def addTrust():
+    # print("request form", request.form['username'])
+    if 'loggedin' in session and session['type'] == 0:
+        msg = ''
+
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST' and 'username' in request.form:
+
+            # Create variables for easy access
+            if request.form['username'] == session['username']:
+                msg = "Can't mark yourself trusted"
+                return render_template('home.html', msg=msg)
+            fromUsername = session['username']
+            toUsername = request.form['username']
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    "SELECT * FROM Customer WHERE username = ?", (toUsername,))
+                customer = cursor.fetchone()
+                if not customer:
+                    msg = "Invalid Username"
+                    return render_template('home.html', msg=msg)
+                cursor.execute(
+                    "SELECT * FROM Trust WHERE fromUsername = ? AND toUsername=?", (fromUsername, toUsername,))
+                record = cursor.fetchone()
+                if(record):
+                    msg = "You have already marked the User Trusted"
+                    return render_template('home.html', msg=msg)
+                cursor.execute(
+                    'UPDATE Customer SET trustCount = trustCount + 1 WHERE username = ?', (request.form['username'],))
+                msg = "Successfuly marked Trusted"
+                con.commit()
+
+        elif request.method == 'POST':
+            # Form is empty... (no POST data)
+            msg = 'Please fill out the form!'
+            # print(request.form)
+
+        return render_template('home.html', msg=msg)
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
 @app.route('/pythonlogin/displayAllBooks', methods=['GET', 'POST'])
 def displayAllBooks():
     if 'loggedin' in session and (session['type'] == 1 or session['type'] == 0):
         msg = ''
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'GET':
+            criteria = request.args['criteria']
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 cursor.execute(
-                    'SELECT bookData.*, Author.name,AVG(score) FROM bookData LEFT JOIN Author ON bookData.authorID = Author.authorID LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY Review.ISBN')
+                    'SELECT bookData.*, Author.name,AVG(score) FROM bookData LEFT JOIN Author ON bookData.authorID = Author.authorID LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY Review.ISBN ORDER BY ?', (criteria,))
                 book = cursor.fetchall()
 
                 # If account exists show error and validation checks

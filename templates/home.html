@@ -5,11 +5,30 @@
 {% block content %}
 <h2>Home Page</h2>
 <p>Welcome back, {{ username }}!</p>
-<p><a href="{{ url_for('createOrder') }}">Create a New Order</p>
-<p><a href="{{ url_for('addReview') }}">Add a Review</p>
-<p><a href="{{ url_for('viewOrder')}}">Check Past Orders</p>
-<p><a href="{{ url_for('displayAllBooks') }}">List all Books: Sorted By (i) Publish Date (ii) average numerical score of comments (iii) average numerical store of trusted user feedbacks</p></a>
-<p>Search by on 
+<p><a href="{{ url_for('createOrder') }}">Create a New Order</a></p>
+<p><a href="{{ url_for('addReview') }}">Add a Review</a></p>
+<p><a href="{{ url_for('viewOrder')}}">Check Past Orders</a></p>
+<p>Mark an User Trusted</p>
+<form action="{{ url_for('addTrust') }}" method="post">
+    <label for="username">Username</label><br>   
+    <input type="text" id="username" name="username">
+    <input type="submit" value="Add as Trusted User">
+</form>
+
+<!-- <p><a href="{{ url_for('displayAllBooks') }}"></a>List all Books: Sorted By (i) Publish Date (ii) average numerical score of comments (iii) average numerical store of trusted user feedbacks</p></a> -->
+<p>List all Books: Sorted By </p>
+    <form action="{{ url_for('displayAllBooks') }}" method="get">
+        
+        <input type="radio" id="date" name="criteria" value="date">
+        <label for="type">Publish Date</label><br>
+        <input type="radio" id="score" name="criteria" value="AVG(score)">
+        <label for="type">Average Numerical Score of Comments</label><br>
+        <input type="radio" id="trust" name="criteria" value="trustCount">
+        <label for="type">Average Numerical Score of Trusted User Feedbacks</label><br>
+        <input type="submit" value="Search">
+    </form>
+
+<p>Search by</p>
     <form action="{{ url_for('displayBookQuery') }}" method="get">
         
         <input type="radio" id="author" name="type" value="author">
@@ -21,7 +40,7 @@
         <input type="radio" id="language" name="type" value="language">
         <label for="type">language</label><br>
         <input type="text" name="value" placeholder="Value" id="Value" required><br>
-        <input type="submit" value="Register">
+        <input type="submit" value="Search">
     </form>
     <div class="msg">{{ msg }}</div>
     {% endblock %}
