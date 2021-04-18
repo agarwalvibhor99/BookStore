@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+{% block title %}View Order Details{% endblock %}
+
+{% block content %}
+<p>Welcome, {{ username }}!</p>
+<h2>Your Previous Order History</h2>
+<form action="{{ url_for('viewOrderDetail') }}" method="get">
+<table>
+    <thead>
+      <tr>
+          <th>Order ID</th>
+          <!-- <th>Book Name</th> -->
+          <th>Total</th>
+          <th></th>
+      </tr>
+      </thead>    
+      <tbody>
+        
+        {% for item in data %}
+        
+			
+            <tr>
+            
+                <td style="text-align:center">{{item[0]}}</td>
+                <td style="text-align:center">{{item[2]}}</td> 
+                <input type="hidden" id="orderID" name="orderID" value="{{ item[0] }}"/>
+                <td><input type="submit" value="Order Detail"></td>
+                
+            </tr>
+            
+         {% endfor %}
+
+      
+      </tbody>
+  </table>
+</form>
+  <p>
+
+
+{% endblock %}

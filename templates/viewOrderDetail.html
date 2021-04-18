@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<p>Welcome, {{ username }}!</p>
+<h2>Your order detail</h2>
+<p>Order ID: {{orderID}}</p>
+<table>
+    <thead>
+      <tr>
+          <th>ISBN</th>
+          <th>Name</th>
+          <th>Quantity</th>
+          <th>Unit Price</th>
+      </tr>
+      </thead>    
+      <tbody>
+       {% for item in data %}    
+              <tr>
+                  <td style="text-align:center">{{item[1]}}</td>
+                  <td style="text-align:center"></td>
+                  <td style="text-align:center">{{item[2]}}</td> 
+                  <td style="text-align:center">{{item[3]}}</td> 
+ 
+              </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+
+{% endblock %}

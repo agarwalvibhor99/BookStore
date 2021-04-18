@@ -2,10 +2,15 @@
 
 
 from flask import Flask, render_template, request, url_for, session, redirect, jsonify
+from flask_uuid import FlaskUUID
 import sqlite3 as sql
 import re
 import datetime
+import uuid
+
+
 app = Flask(__name__)
+FlaskUUID(app)
 app.secret_key = '123456'
 
 
@@ -398,13 +403,13 @@ def addToCart():
             #       subject, language, noOfPages, authorID, authorName, keyword)
 
             # Check if account exists using MySQL
-            totalAmount = 0
+
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
-                i = 0
+                totalAmt = 0
+                orderID = 0
+                orderID = uuid.uuid1()
                 for key in request.form:
-                    print("iteration ", i)
-                    i += 1
                     cursor.execute(
                         'SELECT * FROM bookData WHERE ISBN = ?', (key,))
                     book = cursor.fetchone()
@@ -414,6 +419,8 @@ def addToCart():
                     # print("quantity when high", int(request.form[key]))
                     if(not request.form[key]):
                         continue
+                    qty = int(request.form[key])
+                    totalAmt += book[6]*qty
                     if(int(book[5]) < int(request.form[key])):
                         return render_template('home.html', msg=msg)
                     else:
@@ -421,6 +428,24 @@ def addToCart():
                         cursor.execute(
                             'UPDATE bookData SET stock = ? WHERE ISBN=?', (newQuantity, key))
                         print("quantity updated")
+
+                        username = session['username']
+
+                        ISBN = key
+                        unitPrice = book[6]
+                        print("orderID, username, iSBN, qty: ",
+                              (orderID, username, ISBN, qty))
+                        cursor.execute(
+                            'INSERT INTO orderItem(orderID, ISBN, quantity, unitPrice) VALUES (?, ?, ?, ?)', (orderID.hex, ISBN, qty, unitPrice))
+                    # add keyword
+
+                        msg = 'You have successfully added new Manager!'
+                print(totalAmt)
+                cursor.execute(
+                    'INSERT INTO orders(orderID, username, totalAmt) VALUES (?, ?, ?)', (orderID.hex, session['username'], totalAmt))
+                con.commit()
+                orderID = 0
+                totalAmt = 0
                 # print(existingDict)
                 # session['cartItem'] = {ISBN: quantity}
 
@@ -437,6 +462,74 @@ def addToCart():
 
         return redirect(url_for('createOrder'))
         # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/viewOrder')
+def viewOrder():
+    # Check if user is loggedin
+    if 'loggedin' in session and session['type'] == 0:
+        # User is loggedin show them the home page
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                username = session['username']
+                # print("username session", session['username'])
+                cursor.execute(
+                    'SELECT * FROM orders WHERE username = ?', (username,))
+                orders = cursor.fetchall()
+                # print(orders)
+                orderItem = []
+                for order in orders:
+                    print("order inside for loop", order)
+                    print("order[0]", order[0])
+                    cursor.execute(
+                        'SELECT * FROM orderItem WHERE orderID = ?', (order[0],))
+                    # print(cursor.fetchall())
+                    orderItem.append(cursor.fetchall())
+                # print("order", orders)
+                # print("order items", orderItem)
+
+                # If account exists show error and validation checks
+                if not orders:
+                    msg = "You haven't placed any order till now."
+                else:
+                    # print("orders", orders)
+                    # print("orderItem", orderItem)
+                    return render_template('viewOrder.html', data=orders, username=session['username'])
+
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/viewOrderDetail')
+def viewOrderDetail():
+    # Check if user is loggedin
+    if 'loggedin' in session and session['type'] == 0:
+        # User is loggedin show them the home page
+        msg = ''
+        orderID = request.args['orderID']
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                username = session['username']
+
+                # print("username session", session['username'])
+                cursor.execute(
+                    'SELECT * FROM orderItem WHERE orderID = ?', (orderID,))
+                orderItem = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not orderItem:
+                    msg = "There is some problem"
+                else:
+                    return render_template('viewOrderDetail.html', data=orderItem, orderID=orderID, username=session['username'])
+
+    # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
 

@@ -3,7 +3,8 @@ import sqlite3
 conn = sqlite3.connect('Book.db')
 
 c = conn.cursor()
-
+# c.execute("""DROP TABLE orders""")
+# c.execute("""DROP TABLE orderItem""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS Customer (
             username TEXT PRIMARY KEY,
@@ -47,6 +48,33 @@ c.execute("""CREATE TABLE IF NOT EXISTS Author (
             authorID INT PRIMARY KEY,
             name TEXT
 )""")
+
+
+c.execute("""CREATE TABLE IF NOT EXISTS orders (
+            orderID TEXT,
+            username TEXT,
+            totalAmt FLOAT,
+            PRIMARY KEY(orderID)
+          )""")
+
+c.execute("""CREATE TABLE IF NOT EXISTS orderItem (
+            orderID TEXT,
+            ISBN TEXT,
+            quantity INT,
+            unitPrice FLOAT,
+            PRIMARY KEY(orderID, ISBN),
+            FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
+            FOREIGN KEY(orderID) REFERENCES orders(orderID)
+          )""")
+
+# c.execute("""CREATE TABLE IF NOT EXISTS Order(
+#             username TEXT,
+#             ISBN TEXT,
+#             quantity INT,
+#             orderID INT,
+#             PRIMARY KEY(orderID, username),
+#             FOREIGN KEY(username) REFERENCES Customer(username),
+#             FOREIGN KEY(ISBN) REFERENCES bookData(ISBN));""")
 
 # c.execute(
 #     'INSERT INTO Manager(username, password, firstName, lastName, phone, address) VALUES (?, ?, ?, ?, ?, ?)', ('manager1', 'password', 'firstName', 'lastName', 81444417393, 'address'))
