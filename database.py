@@ -67,6 +67,17 @@ c.execute("""CREATE TABLE IF NOT EXISTS orderItem (
             FOREIGN KEY(orderID) REFERENCES orders(orderID)
           )""")
 
+c.execute("""CREATE TABLE IF NOT EXISTS Review (
+            username TEXT,
+            ISBN TEXT,
+            date DATETIME,
+            score INT,
+            comment TEXT,
+            usefulness INT,
+            PRIMARY KEY(username, ISBN),
+            FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
+            FOREIGN KEY(username) REFERENCES Customer(username)
+          )""")
 # c.execute("""CREATE TABLE IF NOT EXISTS Order(
 #             username TEXT,
 #             ISBN TEXT,

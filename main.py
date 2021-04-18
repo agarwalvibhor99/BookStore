@@ -294,7 +294,7 @@ def displayAllBooks():
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 cursor.execute(
-                    'SELECT * FROM bookData')
+                    'SELECT bookData.*, Author.name,AVG(score) FROM bookData LEFT JOIN Author ON bookData.authorID = Author.authorID LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY Review.ISBN')
                 book = cursor.fetchall()
 
                 # If account exists show error and validation checks
@@ -547,6 +547,65 @@ def viewOrderDetail():
                     return render_template('viewOrderDetail.html', data=myList, orderID=orderID, totalAmt=totalAmt, username=session['username'])
 
     # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/addReview', methods=['GET', 'POST'])
+def addReview():
+    if 'loggedin' in session and session['type'] == 0:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST' and 'ISBN' in request.form and 'score' in request.form:
+            comment = ''
+            # Create variables for easy access
+            username = request.form['username']
+            ISBN = request.form['ISBN']
+            score = request.form['score']
+            if 'comment' in request.form:
+                comment = request.form['comment']
+            # not checking books added 0 from default
+            # print("details book: ", name, ISBN, date, stock, price,
+            #       subject, language, noOfPages, authorID, authorName, keyword)
+
+            # Check if account exists using MySQL
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM bookData WHERE ISBN = ?', (ISBN,)
+                )
+                book = cursor.fetchone()
+                if not book:
+                    msg = "Enter a correct ISBN"
+                cursor.execute(
+                    'SELECT * FROM Review WHERE username = ? AND ISBN = ?', (username, ISBN,))
+                review = cursor.fetchone()
+
+                # If account exists show error and validation checks
+                if review:
+                    msg = 'Review already exists!'
+
+                else:
+                    # Account doesnt exists and the form data is valid, now insert new account into accounts table
+                    if not comment:
+                        cursor.execute(
+                            'INSERT INTO Review(username, ISBN, date, score) VALUES (?, ?, ?, ?)', (username, ISBN, datetime.datetime.now(), score,))
+                        # add keyword
+                        con.commit()
+                        msg = 'You have successfully added review!'
+                    else:
+                        cursor.execute(
+                            'INSERT INTO Review(username, ISBN, date, score, comment) VALUES (?, ?, ?, ?)', (username, ISBN, datetime('now', 'localtime'), score, comment))
+                        # add keyword
+                        con.commit()
+                        msg = 'You have successfully added review!'
+
+        elif request.method == 'POST':
+            # Form is empty... (no POST data)
+            msg = 'Please fill out the form!'
+            print(request.form)
+
+        return render_template('addReview.html', msg=msg, username=session['username'])
+        # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
 

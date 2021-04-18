@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+
+{% block title %}Customer Home{% endblock %}
+
+{% block content %}
+
+<p>Welcome Customer, {{ username }}!</p>
+<h2>Add Review for a Book</h2>
+<form action="{{ url_for('addReview') }}" method="post" autocomplete="off">
+    <label for="ISBN">
+        ISBN
+    </label>
+    <input type="text" name="ISBN" placeholder="ISBN" id="ISBN" required>
+
+    <label for="score">
+        Score
+    </label>
+    <input type="number" name="score" placeholder="Score" id="score" required>
+
+    <label for="comment">
+        Comment
+    </label>
+    <input type="text" name="comment" placeholder="Comment" id="comment" >
+    <input type="hidden" name="username" value={{username}}>
+    <div class="msg">{{ msg }}</div>
+    <input type="submit" value="Add Review">
+</form>
+{% endblock %}
