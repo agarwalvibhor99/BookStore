@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manager Home{% endblock %}
+
+{% block content %}
+<h2>Home Page</h2>
+<p>Welcome Manager, {{ username }}!</p>
+<form action="{{ url_for('bookStatistics') }}" method="get">
+    <label> Top (n) books based on</label>
+    <input type='number' name="count" placeholder="n"><br>
+
+    <input type="radio" id="quantity" name="criteria" value="quantity">
+    <label for="type">Most Popular Book (Based on Quantity sold)</label><br>
+
+    <input type="radio" id="author" name="criteria" value="author">
+    <label for="type">Popular author</label><br>
+
+    <input type="radio" id="publisher" name="criteria" value="publisher">
+    <label for="type">Most Popular Publisher</label><br>
+
+    <input type="submit" value="Find Top Books">
+</form>
+<table>
+    <thead>
+      <tr>
+          <th>ISBN</th>
+          <th>Name</th>
+          <th></th>
+      </tr>
+      </thead>    
+      <tbody>
+       {% for item in data %}  
+              <tr>
+                  <td style="text-align:center">{{item[0]}}</td>
+                  <td style="text-align:center">{{item[1]}}</td>
+
+              </tr>
+            
+          {% endfor %}
+      </tbody>
+  </table>
+
+
+{% endblock %}

@@ -528,8 +528,8 @@ def viewOrder():
                 # print(orders)
                 orderItem = []
                 for order in orders:
-                    print("order inside for loop", order)
-                    print("order[0]", order[0])
+                    # print("order inside for loop", order)
+                    # print("order[0]", order[0])
                     cursor.execute(
                         'SELECT * FROM orderItem WHERE orderID = ?', (order[0],))
                     # print(cursor.fetchall())
@@ -540,6 +540,7 @@ def viewOrder():
                 # If account exists show error and validation checks
                 if not orders:
                     msg = "You haven't placed any order till now."
+                    return render_template("home.html", msg=msg, username=session['username'])
                 else:
                     # print("orders", orders)
                     # print("orderItem", orderItem)
@@ -801,6 +802,51 @@ def markUsefull():
                 return render_template('markUsefull.html', msg="usefulness marked")
 
     # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/bookStatistics', methods=['GET', 'POST'])
+def bookStatistics():
+    if 'loggedin' in session and session['type'] == 1:
+        # print('in here')
+        msg = ''
+
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET' and request.query_string:
+
+            print(request.query_string)
+            reqType = request.args['criteria']
+            value = request.args['count']
+            print(reqType, type(value))
+            print("in get")
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                if (reqType == "quantity"):
+                    print("in checking name")
+                    cursor.execute(
+                        "SELECT ISBN, SUM(quantity) AS qty FROM orderItem GROUP BY ISBN ORDER BY qty DESC LIMIT ?", (value,))
+                    book = cursor.fetchall()
+
+                elif (reqType == "author"):
+                    cursor.execute(
+                        "SELECT A.ISBN, Author.name, A.qty FROM (SELECT ISBN, sum(quantity) AS qty FROM orderItem GROUP BY ISBN) AS A INNER JOIN writtenBy ON A.ISBN=writtenBy.ISBN INNER JOIN Author on Author.authorID=writtenBy.authorID ORDER BY A.qty DESC LIMIT ?", (value,))
+                    book = cursor.fetchall()
+
+                elif (reqType == "publisher"):
+                    cursor.execute(
+                        "SELECT A.ISBN, A.qty, bookData.publisher FROM (SELECT ISBN, sum(quantity) AS qty FROM orderItem GROUP BY ISBN) AS A INNER JOIN bookData ON A.ISBN = bookData.ISBN ORDER BY A.qty DESC LIMIT ?", (value,))
+                    book = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not book:
+                    msg = 'There are no books in the store with this name!'
+                    return render_template('home.html', msg=msg)
+                else:
+                    print(book)
+                    return render_template('bookStatistics.html', data=book, username=session['username'])
+        else:
+            return render_template('bookStatistics.html', username=session['username'])
+        # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
 
