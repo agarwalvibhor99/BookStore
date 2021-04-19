@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manager Home{% endblock %}
+
+{% block content %}
+<h2>User Awards</h2>
+<p>Welcome Manager, {{ username }}!</p>
+<form action="{{ url_for('userAward') }}" method="get">
+    <label> Top (n) Users based on</label>
+    <input type='number' name="count" placeholder="n" required><br>
+
+    <input type="radio" id="trust" name="criteria" value="trust" required>
+    <label for="type">Most Trusted User</label><br>
+
+    <input type="radio" id="useful" name="criteria" value="useful">
+    <label for="type">Provided Most Useful Comments</label><br>
+
+    <input type="submit" value="Find Top Users">
+</form>
+<table>
+    <thead>
+      <tr>
+          <th>Username</th>
+          <th>Name</th>
+          <th></th>
+      </tr>
+      </thead>    
+      <tbody>
+       {% for item in data %}  
+              <tr>
+                  <td style="text-align:center">{{item[0]}}</td>
+                  <td style="text-align:center">{{item[1]}}</td>
+
+              </tr>
+            
+          {% endfor %}
+      </tbody>
+  </table>
+
+
+{% endblock %}

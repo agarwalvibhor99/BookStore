@@ -860,5 +860,45 @@ def bookStatistics():
     return redirect(url_for('login'))
 
 
+@app.route('/pythonlogin/userAward', methods=['GET', 'POST'])
+def userAward():
+    if 'loggedin' in session and session['type'] == 1:
+        # print('in here')
+        msg = ''
+
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET' and request.query_string:
+
+            print(request.query_string)
+            reqType = request.args['criteria']
+            value = request.args['count']
+            print(reqType, type(value))
+            print("in get")
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                if (reqType == "trust"):
+                    print("in checking name")
+                    cursor.execute(
+                        "SELECT * FROM Customer ORDER BY trustCount DESC LIMIT ?", (value,))
+                    data = cursor.fetchall()
+
+                elif (reqType == "useful"):
+                    cursor.execute(
+                        "SELECT username, SUM(usefulness) FROM Review GROUP BY username ORDER BY SUM(usefulness) DESC LIMIT ?", (value,))
+                    data = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not data:
+                    msg = 'There are no books in the store with this name!'
+                    return render_template('home.html', msg=msg)
+                else:
+                    print(data)
+                    return render_template('userAward.html', data=data, username=session['username'])
+        else:
+            return render_template('userAward.html', username=session['username'])
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
