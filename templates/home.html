@@ -8,11 +8,15 @@
 <p><a href="{{ url_for('createOrder') }}">Create a New Order</a></p>
 <p><a href="{{ url_for('addReview') }}">Add a Review</a></p>
 <p><a href="{{ url_for('viewOrder')}}">Check Past Orders</a></p>
-<p>Mark an User Trusted</p>
+<p>Trust/Un-Trust an User</p>
 <form action="{{ url_for('addTrust') }}" method="post">
     <label for="username">Username</label><br>   
     <input type="text" id="username" name="username">
-    <input type="submit" value="Add as Trusted User">
+    <input type="radio" id="trust" name="type" value="trust">
+    <label for="type">Trust</label><br>
+    <input type="radio" id="untrust" name="type" value="untrust">
+    <label for="type">Untrust</label><br>
+    <input type="submit" value="Mark User">
 </form>
 
 <!-- <p><a href="{{ url_for('displayAllBooks') }}"></a>List all Books: Sorted By (i) Publish Date (ii) average numerical score of comments (iii) average numerical store of trusted user feedbacks</p></a> -->

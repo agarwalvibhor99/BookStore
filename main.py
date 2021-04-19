@@ -300,6 +300,7 @@ def addTrust():
                 return render_template('home.html', msg=msg)
             fromUsername = session['username']
             toUsername = request.form['username']
+            reqType = request.form['type']
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 cursor.execute(
@@ -312,11 +313,20 @@ def addTrust():
                     "SELECT * FROM Trust WHERE fromUsername = ? AND toUsername=?", (fromUsername, toUsername,))
                 record = cursor.fetchone()
                 if(record):
-                    msg = "You have already marked the User Trusted"
+                    msg = "You have already marked the User"
                     return render_template('home.html', msg=msg)
-                cursor.execute(
-                    'UPDATE Customer SET trustCount = trustCount + 1 WHERE username = ?', (request.form['username'],))
-                msg = "Successfuly marked Trusted"
+                if(reqType == "trust"):
+                    cursor.execute(
+                        'UPDATE Customer SET trustCount = trustCount + 1 WHERE username = ?', (request.form['username'],))
+                    cursor.execute(
+                        "INSERT INTO Trust VALUES(?, ?, 1)", (fromUsername, toUsername,))
+                    msg = "Successfuly marked Trusted"
+                elif(reqType == "untrust"):
+                    cursor.execute(
+                        'UPDATE Customer SET trustCount = trustCount - 1 WHERE username = ?', (request.form['username'],))
+                    cursor.execute(
+                        "INSERT INTO Trust VALUES(?, ?, -1)", (fromUsername, toUsername,))
+                    msg = "Successfuly marked Trusted"
                 con.commit()
 
         elif request.method == 'POST':
