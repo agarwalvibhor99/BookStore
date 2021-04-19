@@ -734,7 +734,41 @@ def displayReview():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/markUsefull', methods=['GET', 'POST'])
+@app.route('/pythonlogin/displayTopReview')
+def displayTopReview():
+    # Check if user is loggedin
+    if 'loggedin' in session and session['type'] == 0:
+        # User is loggedin show them the home page
+        msg = ''
+        ISBN = request.args['ISBN']
+        count = request.args['count']
+        print("ISBN IN REVIEW IS:", ISBN)
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM bookData WHERE ISBN = ?', (ISBN,))
+                book = cursor.fetchone()
+
+                # If account exists show error and validation checks
+                if not book:
+                    msg = 'Invalid ISBN'
+                else:
+                    cursor.execute(
+                        'SELECT * FROM Review WHERE ISBN = ? ORDER BY usefulness DESC LIMIT ?', (ISBN, count,))
+                    review = cursor.fetchall()
+                    if not review:
+                        msg = "New review for this book, you can add one"
+                        return render_template("addReview.html", msg=msg)
+                    print(review)
+                    return render_template('displayReview.html', data=review, username=session['username'])
+
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@ app.route('/pythonlogin/markUsefull', methods=['GET', 'POST'])
 def markUsefull():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 0:

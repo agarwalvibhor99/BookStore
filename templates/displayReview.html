@@ -5,7 +5,14 @@
 <p>Welcome, {{ username }}!</p>
 <h2>Your order detail</h2>
 <!-- <p>ISBN: {{data[0][1]}}</p> -->
-<!-- <form action="{{ url_fo }}""> -->
+<form action="{{ url_for('displayTopReview') }}" method="get">
+    <label> Top (n) comments?</label>
+    <input type='number' name="count" placeholder="n">
+    <input type="submit" value="Find Top Comments">
+     <input type="hidden" id ="ISBN" name="ISBN" value="{{ data[0][1] }}"/>
+    </form>
+   
+   
 <table>
     
     <thead>
@@ -20,6 +27,7 @@
       </thead>    
       <tbody>
        {% for item in data %}    
+      
        <form action="{{ url_for('markUsefull') }}" method="post" autocomplete="off">
               <tr>
                   <td style="text-align:center">{{item[0]}}</td>
