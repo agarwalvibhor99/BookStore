@@ -639,7 +639,7 @@ def addReview():
                         msg = 'You have successfully added review!'
                     else:
                         cursor.execute(
-                            'INSERT INTO Review(username, ISBN, date, score, comment) VALUES (?, ?, ?, ?)', (username, ISBN, datetime('now', 'localtime'), score, comment))
+                            'INSERT INTO Review(username, ISBN, date, score, comment) VALUES (?, ?, ?, ?, ?)', (username, ISBN, datetime.datetime.now(), score, comment,))
                         # add keyword
                         con.commit()
                         msg = 'You have successfully added review!'
@@ -698,6 +698,75 @@ def updateStock():
 
         return render_template('updateStock.html', msg=msg, username=session['username'])
         # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/displayReview')
+def displayReview():
+    # Check if user is loggedin
+    if 'loggedin' in session and session['type'] == 0:
+        # User is loggedin show them the home page
+        msg = ''
+        ISBN = request.args['ISBN']
+        print("ISBN IN REVIEW IS:", ISBN)
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM bookData WHERE ISBN = ?', (ISBN,))
+                book = cursor.fetchone()
+
+                # If account exists show error and validation checks
+                if not book:
+                    msg = 'Invalid ISBN'
+                else:
+                    cursor.execute(
+                        'SELECT * FROM Review WHERE ISBN = ?', (ISBN,))
+                    review = cursor.fetchall()
+                    if not review:
+                        msg = "New review for this book, you can add one"
+                        return render_template("addReview.html", msg=msg)
+                    print(review)
+                    return render_template('displayReview.html', data=review, username=session['username'])
+
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/markUsefull', methods=['GET', 'POST'])
+def markUsefull():
+    # Check if user is loggedin
+    if 'loggedin' in session and session['type'] == 0:
+        # User is loggedin show them the home page
+        msg = ''
+        a = []
+        for keys in request.form:
+            a.append(request.form[keys])
+        #     print("Keys:", keys, "value:", request.form[keys])
+        # print("a", a)
+
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST':
+            if(session['username'] == a[0]):
+                msg = "Can't mark your own review"
+                return render_template("home.html", msg=msg)
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute("SELECT * FROM Usefulness WHERE fromUsername = ? AND toUsername = ? AND ISBN = ? ",
+                               (session['username'], a[0], a[1],))
+                usefullness = cursor.fetchone()
+                if(usefullness):
+                    msg = "already marked usefull"
+                    return render_template('home.html', msg=msg, username=session['username'])
+                cursor = con.cursor()
+                cursor.execute("INSERT INTO Usefulness VALUES (?, ?, ?)",
+                               (session['username'], a[0], a[1],))
+                cursor.execute(
+                    'UPDATE Review SET usefulness = usefulness + 1 WHERE username = ? AND ISBN = ?', (a[0], a[1],))
+                return render_template('markUsefull.html', msg="usefulness marked")
+
+    # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
 

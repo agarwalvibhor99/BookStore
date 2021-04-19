@@ -4,7 +4,7 @@ conn = sqlite3.connect('Book.db')
 
 c = conn.cursor()
 # c.execute("""DROP TABLE orders""")
-# c.execute("""DROP TABLE orderItem""")
+c.execute("""DROP TABLE Review""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS Customer (
             username TEXT PRIMARY KEY,
@@ -73,7 +73,7 @@ c.execute("""CREATE TABLE IF NOT EXISTS Review (
             date DATETIME,
             score INT,
             comment TEXT,
-            usefulness INT,
+            usefulness INT DEFAULT 0,
             PRIMARY KEY(username, ISBN),
             FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
             FOREIGN KEY(username) REFERENCES Customer(username)
@@ -83,6 +83,12 @@ c.execute("""CREATE TABLE IF NOT EXISTS Trust (
             fromUsername TEXT,
             toUsername TEXT,
             PRIMARY KEY(fromUsername, toUsername)
+          )""")
+c.execute("""CREATE TABLE IF NOT EXISTS Usefulness (
+            fromUsername TEXT,
+            toUsername TEXT,
+            ISBN TEXT,
+            PRIMARY KEY(fromUsername, toUsername, ISBN)
           )""")
 
 # c.execute("""CREATE TABLE IF NOT EXISTS Order(
