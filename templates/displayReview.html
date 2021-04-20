@@ -37,7 +37,14 @@
                   <td style="text-align:center">{{item[5]}}</td> 
                   <input type="hidden" id="username" name="username"value="{{ item[0] }}"/>
                   <input type="hidden" id ="ISBN" name="ISBN "value="{{ item[1] }}"/>
-                  <td><input type="submit" value="Mark Usefull"></td>
+
+                 <td> <input type="radio" id="veryUseful" name="type" value="veryUseful">
+                  <label for="type">Very Useful</label><br></td>
+                 <td> <input type="radio" id="useful" name="type" value="useful">
+                  <label for="type">Useful</label><br></td>
+                 <td> <input type="radio" id="notUseful" name="type" value="notUseful">
+                  <label for="type">Not Usefull</label><br></td>
+                  <td><input type="submit" name ="Usefullness" value="Mark Review"></td>
               </tr>
             </form>
           {% endfor %}

@@ -802,13 +802,26 @@ def markUsefull():
                                (session['username'], a[0], a[1],))
                 usefullness = cursor.fetchone()
                 if(usefullness):
-                    msg = "already marked usefull"
+                    msg = "You have already marked this comment"
                     return render_template('home.html', msg=msg, username=session['username'])
                 cursor = con.cursor()
-                cursor.execute("INSERT INTO Usefulness VALUES (?, ?, ?)",
-                               (session['username'], a[0], a[1],))
-                cursor.execute(
-                    'UPDATE Review SET usefulness = usefulness + 1 WHERE username = ? AND ISBN = ?', (a[0], a[1],))
+                reqType = request.form['type']
+                if(reqType == "veryUseful"):
+                    cursor.execute("INSERT INTO Usefulness VALUES (?, ?, ?, ?)",
+                                   (session['username'], a[0], a[1], 1,))
+                    cursor.execute(
+                        'UPDATE Review SET usefulness = usefulness + 1 WHERE username = ? AND ISBN = ?', (a[0], a[1],))
+                elif(reqType == "useful"):
+                    cursor.execute("INSERT INTO Usefulness VALUES (?, ?, ?, ?)",
+                                   (session['username'], a[0], a[1], 0,))
+                    # cursor.execute(
+                    #     'UPDATE Review SET usefulness = usefulness + 1 WHERE username = ? AND ISBN = ?', (a[0], a[1],))
+                elif(reqType == "notUseful"):
+                    cursor.execute("INSERT INTO Usefulness VALUES (?, ?, ?, ?)",
+                                   (session['username'], a[0], a[1], -1,))
+                    cursor.execute(
+                        'UPDATE Review SET usefulness = usefulness - 1 WHERE username = ? AND ISBN = ?', (a[0], a[1],))
+                con.commit()
                 return render_template('markUsefull.html', msg="usefulness marked")
 
     # User is not loggedin redirect to login page
@@ -836,7 +849,7 @@ def bookStatistics():
                     cursor.execute(
                         "SELECT ISBN, SUM(quantity) AS qty FROM orderItem GROUP BY ISBN ORDER BY qty DESC LIMIT ?", (value,))
                     book = cursor.fetchall()
-
+# add join with bookData
                 elif (reqType == "author"):
                     cursor.execute(
                         "SELECT A.ISBN, Author.name, A.qty FROM (SELECT ISBN, sum(quantity) AS qty FROM orderItem GROUP BY ISBN) AS A INNER JOIN writtenBy ON A.ISBN=writtenBy.ISBN INNER JOIN Author on Author.authorID=writtenBy.authorID ORDER BY A.qty DESC LIMIT ?", (value,))
