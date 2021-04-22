@@ -846,18 +846,18 @@ def bookStatistics():
                 cursor = con.cursor()
                 if (reqType == "quantity"):
                     print("in checking name")
+                    # not sending ISBN to get rid of ISBN Column form front end
                     cursor.execute(
-                        "SELECT ISBN, SUM(quantity) AS qty FROM orderItem GROUP BY ISBN ORDER BY qty DESC LIMIT ?", (value,))
+                        "SELECT name, SUM(quantity) AS qty FROM orderItem INNER JOIN bookData on orderItem.ISBN = bookData.ISBN GROUP BY orderItem.ISBN ORDER BY qty DESC LIMIT ?", (value,))
                     book = cursor.fetchall()
-# add join with bookData
                 elif (reqType == "author"):
                     cursor.execute(
-                        "SELECT A.ISBN, Author.name, A.qty FROM (SELECT ISBN, sum(quantity) AS qty FROM orderItem GROUP BY ISBN) AS A INNER JOIN writtenBy ON A.ISBN=writtenBy.ISBN INNER JOIN Author on Author.authorID=writtenBy.authorID ORDER BY A.qty DESC LIMIT ?", (value,))
+                        "SELECT Author.name, A.qty FROM (SELECT ISBN, sum(quantity) AS qty FROM orderItem GROUP BY ISBN) AS A INNER JOIN writtenBy ON A.ISBN=writtenBy.ISBN INNER JOIN Author on Author.authorID=writtenBy.authorID ORDER BY A.qty DESC LIMIT ?", (value,))
                     book = cursor.fetchall()
 
                 elif (reqType == "publisher"):
                     cursor.execute(
-                        "SELECT A.ISBN, A.qty, bookData.publisher FROM (SELECT ISBN, sum(quantity) AS qty FROM orderItem GROUP BY ISBN) AS A INNER JOIN bookData ON A.ISBN = bookData.ISBN ORDER BY A.qty DESC LIMIT ?", (value,))
+                        "SELECT bookData.publisher, A.qty FROM (SELECT ISBN, sum(quantity) AS qty FROM orderItem GROUP BY ISBN) AS A INNER JOIN bookData ON A.ISBN = bookData.ISBN ORDER BY A.qty DESC LIMIT ?", (value,))
                     book = cursor.fetchall()
 
                 # If account exists show error and validation checks
