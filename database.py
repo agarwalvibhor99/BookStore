@@ -6,6 +6,7 @@ c = conn.cursor()
 # c.execute("""DROP TABLE orders""")
 c.execute("""DROP TABLE Trust""")
 
+
 c.execute("""CREATE TABLE IF NOT EXISTS Customer (
             username TEXT PRIMARY KEY,
             password TEXT,
@@ -29,7 +30,7 @@ c.execute("""CREATE TABLE IF NOT EXISTS Manager (
 c.execute("""CREATE TABLE IF NOT EXISTS bookData (
             ISBN TEXT PRIMARY KEY,
             name TEXT,
-            authorID INT,
+            language TEXT,
             publisher text,
             date DATETIME,
             stock INT,
@@ -110,6 +111,11 @@ c.execute("""CREATE TABLE IF NOT EXISTS Usefulness (
 # data = c.fetchall()
 # for d in data:
 #     print(d)
+# c.execute("""DELETE FROM bookData WHERE ISBN = 'ISBN123456789'""")
+# c.execute("""INSERT INTO bookData VALUES('ISBN123456789', 'The Untold Story', 'English','The House', '2002-03-25', 50, 25, 'Life', 200)""")
+conn.commit()
+c.execute("""INSERT INTO bookData VALUES('ISBN000000000', 'The Told Story', 'English','BNPS', '2010-06-23', 60, 30, 'Not Life', 2500)""")
+conn.commit()
 c.execute("""SELECT * FROM Manager""")
 
 data = c.fetchall()

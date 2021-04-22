@@ -4,13 +4,37 @@
 
 {% block content %}
 
+<script>
+	var count = 1;
+	
+function addAuthor(){
+	var authorName = "authorName"+count
+	var authorID = "authorID"+count
+	count += 1;
+	console.log(count)
+	var inputAuthorName = document.createElement("input")
+	var inputAuthorID = document.createElement("input")
+	inputAuthorID.setAttribute("type", "text")
+	inputAuthorID.setAttribute("placeholder", "Author ID")
+	inputAuthorID.setAttribute("name", authorID)
+	inputAuthorID.setAttribute("id", authorID)
+	inputAuthorName.setAttribute("type", "text")
+	inputAuthorName.setAttribute("placeholder", "Author Name")
+	inputAuthorName.setAttribute("name", authorName)
+	inputAuthorName.setAttribute("id", authorName)
+	var div = document.getElementById("extraAuthor")
+	div.appendChild(inputAuthorID)
+	div.appendChild(inputAuthorName)
+}
+</script>
+
 <p>Welcome Manager, {{ username }}!</p>
 <h2>New Book Details</h2>
 <form action="{{ url_for('newBook') }}" method="post" autocomplete="off">
                 <label for="ISBN">
 					<i class="fas fa-user"></i>
 				</label>
-				<input type="text" name="ISBN" placeholder="ISBN" id="ISBN" required>
+				<input type="text" name="ISBN" placeholder="ISBN(9 Digit Number)" id="ISBN" minlength="4" maxlength="8" required>
 
                 <label for="name">
 					<i class="fas fa-user"></i>
@@ -25,6 +49,11 @@
 					<i class="fas fa-user"></i>
 				</label>
 				<input type="text" name="authorName" placeholder="author name" id="authorName" required>
+
+
+				<input type="button" value="Add More Author" onclick="addAuthor()"/>
+				<div id="extraAuthor"></div>
+				
 
 				<label for="stock">
 					<i class="fas fa-user"></i>

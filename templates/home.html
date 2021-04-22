@@ -35,15 +35,21 @@
 <p>Search by</p>
     <form action="{{ url_for('displayBookQuery') }}" method="get">
         
-        <input type="radio" id="author" name="type" value="author">
+        <!-- <input type="checkbox" id="author" name="type" value="author"> -->
         <label for="type">Author</label><br>
-        <input type="radio" id="publisher" name="type" value="publisher">
+        <input type="text" name="author" placeholder="Author" id="Value" ><br>
+
+        <!-- <input type="checkbox" id="publisher" name="type" value="publisher"> -->
         <label for="type">Publisher</label><br>
-        <input type="radio" id="name" name="type" value="name">
-        <label for="type">name</label><br>
-        <input type="radio" id="language" name="type" value="language">
-        <label for="type">language</label><br>
-        <input type="text" name="value" placeholder="Value" id="Value" required><br>
+        <input type="text" name="publisher" placeholder="Publisher" id="Value"><br>
+
+        <!-- <input type="checkbox" id="name" name="type" value="name"> -->
+        <label for="type">Name</label><br>
+        <input type="text" name="name" placeholder="Name" id="Value" ><br>
+
+        <!-- <input type="checkbox" id="language" name="type" value="language"> -->
+        <label for="type">Language</label><br>
+        <input type="text" name="language" placeholder="Language" id="Value" ><br>
         <input type="submit" value="Search">
     </form>
     <div class="msg">{{ msg }}</div>

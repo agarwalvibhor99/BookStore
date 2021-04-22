@@ -24,4 +24,8 @@ DELETE FROM Usefulness WHERE fromUsername = "abcd";
 SELECT orderItem.ISBN, name, SUM(quantity) AS qty FROM orderItem INNER JOIN bookData on orderItem.ISBN = bookData.ISBN GROUP BY orderItem.ISBN ORDER BY qty DESC LIMIT 1;
 
 --SQLite
-SELECT A.ISBN, Author.name, A.qty FROM (SELECT authorID, sum(quantity) AS qty FROM orderItem GROUP BY authorID) AS A INNER JOIN Author ON A.authorID=Author.authorIDORDER BY A.qty DESC LIMIT 1
+SELECT Author.name, A.qty FROM (SELECT ISBN, sum(quantity) AS qty FROM orderItem GROUP BY ISBN) AS A INNER JOIN writtenBy ON A.ISBN=writtenBy.ISBN INNER JOIN Author on Author.authorID=writtenBy.authorID ORDER BY A.qty DESC LIMIT 2
+
+--SQLite
+DELETE FROM Author
+

@@ -149,6 +149,11 @@ def managerhome():
 def newBook():
     if 'loggedin' in session and session['type'] == 1:
         msg = ''
+        count = 0
+        print(request.form)
+        for key in request.form:
+            count += 1
+        print("numbner of keys", count)
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'POST' and 'name' in request.form and 'ISBN' in request.form and 'date' in request.form and 'publisher' in request.form and 'stock' in request.form and 'price' in request.form and 'subject' in request.form and 'language' in request.form and 'noOfPages' in request.form and 'authorID' in request.form and 'authorName' in request.form:
             # Create variables for easy access
@@ -164,14 +169,19 @@ def newBook():
             authorName = request.form['authorName']
             keyword = request.form['keyword']
             publisher = request.form['publisher']
+
+            finalISBN = "ISBN" + ISBN
+
             # print("details book: ", name, ISBN, date, stock, price,
             #       subject, language, noOfPages, authorID, authorName, keyword)
 
             # Check if account exists using MySQL
+            # print(request.form['authorName'])
+
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 cursor.execute(
-                    'SELECT * FROM bookData WHERE ISBN = ?', (ISBN,))
+                    'SELECT * FROM bookData WHERE ISBN = ?', (finalISBN,))
                 book = cursor.fetchone()
 
                 # If account exists show error and validation checks
@@ -183,18 +193,40 @@ def newBook():
                 else:
                     # Account doesnt exists and the form data is valid, now insert new account into accounts table
                     cursor.execute(
-                        'INSERT INTO bookData(ISBN, name, authorID, publisher, date, stock, price, subject, noOfPages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', (ISBN, name, authorID, publisher, date, stock, price, subject, noOfPages))
+                        'INSERT INTO bookData(ISBN, name, language, publisher, date, stock, price, subject, noOfPages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', (finalISBN, name, language, publisher, date, stock, price, subject, noOfPages,))
+
                     cursor.execute(
-                        'SELECT * FROM Author WHERE authorID = ?', (authorID))
+                        'SELECT * FROM Author WHERE authorID = ?', (authorID,))
                     author = cursor.fetchone()
                 # add multiple author for
                 # If author exists show error and validation checks
                     if not author:
                         cursor.execute(
-                            'INSERT INTO Author(authorID, name) VALUES (?, ?)', (authorID, name))
-                    else:
-                        cursor.execute(
-                            'INSERT INTO writtenBY(ISBN, authorID) VALUES (?, ?)', (ISBN, authorID))
+                            'INSERT INTO Author(authorID, name) VALUES (?, ?)', (authorID, authorName,))
+
+                    cursor.execute(
+                        'INSERT INTO writtenBY(ISBN, authorID) VALUES (?, ?)', (finalISBN, authorID,))
+
+                    if count > 12:
+                        innerCount = 1
+                        for i in range(13, count):
+                            authorID = "authorID" + str(innerCount)
+                            authorName = "authorName" + str(innerCount)
+                            innerCount += 1
+
+                            authorID = request.form[authorID]
+                            authorName = request.form[authorName]
+                            print(authorID, authorName)
+                            cursor.execute(
+                                'SELECT * FROM Author WHERE authorID = ?', (authorID,))
+                            author = cursor.fetchone()
+                            if not author:
+                                cursor.execute(
+                                    'INSERT INTO Author(authorID, name) VALUES (?, ?)', (authorID, authorName,))
+
+                            cursor.execute(
+                                'INSERT INTO writtenBY(ISBN, authorID) VALUES (?, ?)', (finalISBN, authorID,))
+
                     # add keyword
                     con.commit()
                     msg = 'You have successfully added Book!'
@@ -277,6 +309,7 @@ def profile():
                                (session['username'],))
                 account = cursor.fetchone()
             # Show the profile page with account info
+            print(account)
             return render_template('profile.html', account=account)
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
@@ -369,34 +402,67 @@ def displayBookQuery():
         # print('in here')
         msg = ''
         print(request.query_string)
-        reqType = request.args['type']
-        value = request.args['value']
-        print(reqType, type(value))
+        author = request.args['author']
+        name = request.args['name']
+        publisher = request.args['publisher']
+        language = request.args['language']
+
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'GET':
             print("in get")
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
-                if (reqType == "name"):
-                    print("in checking name")
+                # add
+                if not name and not author and not publisher and not language:
+                    # cursor.execute(
+                    #     "SELECT bookData.*, A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN ")
+                    # book = cursor.fetchall()
                     cursor.execute(
-                        "SELECT * FROM bookData WHERE name like ?", [value])
+                        "SELECT bookData.* FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN GROUP BY bookData.ISBN ")
                     book = cursor.fetchall()
 
-                elif (reqType == "publisher"):
+                # elif not author:
+                #     if not name:
+                #         name = "%"
+                #     if not publisher:
+                #         publisher = "%"
+                #     if not language:
+                #         language = "%"
+                #     cursor.execute(
+                #         "SELECT bookData.* FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ?", (name, publisher, language, ))
+                #     book = cursor.fetchall()
+
+                else:
+                    if not name:
+                        name = "%"
+                    if not author:
+                        author = "%"
+                    if not publisher:
+                        publisher = "%"
+                    if not language:
+                        language = "%"
+
+                    # cursor.execute(
+                    #     "SELECT bookData.*, A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ?", (name, publisher, language, author, ))
+                    # book = cursor.fetchall()
                     cursor.execute(
-                        "SELECT * FROM bookData WHERE publisher like ?", [value])
+                        "SELECT bookData.*, A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? GROUP BY bookData.ISBN", (name, publisher, language, author, ))
                     book = cursor.fetchall()
 
-                elif (reqType == "language"):
-                    cursor.execute(
-                        "SELECT * FROM bookData WHERE language like ?", [value])
-                    book = cursor.fetchall()
+                # elif (reqType == "publisher"):
+                #     cursor.execute(
+                #         "SELECT * FROM bookData WHERE publisher like ?", [value])
+                #     book = cursor.fetchall()
 
-                elif (reqType == "author"):
-                    cursor.execute(
-                        "SELECT * FROM bookData WHERE authorID = (SELECT authorID FROM Author WHERE name LIKE ?)", [value])
-                    book = cursor.fetchall()
+                # elif (reqType == "language"):
+                #     cursor.execute(
+                #         "SELECT * FROM bookData WHERE language like ?", [value])
+                #     book = cursor.fetchall()
+
+                # elif (reqType == "author"):
+                #     cursor.execute(
+                #         "SELECT * FROM bookData WHERE authorID = (SELECT authorID FROM Author WHERE name LIKE ?)", [value])
+                #     book = cursor.fetchall()
 
                 # If account exists show error and validation checks
                 if not book:
