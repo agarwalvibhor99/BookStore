@@ -100,6 +100,14 @@ c.execute("""CREATE TABLE IF NOT EXISTS requestedBook (
             FOREIGN KEY(username) REFERENCES Customer(username)
 )
 """)
+c.execute("""CREATE TABLE IF NOT EXISTS requestedCredit (
+            date DATETIME,
+            username TEXT,
+            amount TEXT,
+            PRIMARY KEY(username),
+            FOREIGN KEY(username) REFERENCES Customer(username)
+)
+""")
 
 # c.execute("""CREATE TABLE IF NOT EXISTS Order(
 #             username TEXT,

@@ -1041,8 +1041,9 @@ def updateProfile():
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
+# for customer
 
-# requested book delete while adding book if in this table
+
 @app.route('/pythonlogin/requestNewBook', methods=['GET', 'POST'])
 def requestNewBook():
     if 'loggedin' in session and session['type'] == 0:
@@ -1100,6 +1101,8 @@ def requestNewBook():
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
+# for Manager
+
 
 @app.route('/pythonlogin/requestedBooks', methods=['GET', 'POST'])
 def requestedBooks():
@@ -1119,6 +1122,87 @@ def requestedBooks():
                 else:
                     print(book)
                     return render_template('requestedBooks.html', data=book, username=session['username'])
+
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+# route for user to request credit
+
+
+@app.route('/pythonlogin/requestCredit', methods=['GET', 'POST'])
+def requestCredit():
+    if 'loggedin' in session and session['type'] == 0:
+        msg = ''
+
+        # return render_template('home.html', msg="Hello")
+
+        if request.method == 'POST':
+            # Create variables for easy access
+            amount = request.form['amount']
+            # Check if account exists using MySQL
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM requestedCredit WHERE username = ?', (
+                        session['username'],)
+                )
+                request = cursor.fetchone()
+                if request:
+                    msg = "You already have a pending request"
+
+                else:
+                    # Account doesnt exists and the form data is valid, now insert new account into accounts table
+                    if not comment:
+                        cursor.execute(
+                            'INSERT INTO requestedCredit(date, username, amount) VALUES (?, ?, ?)', (datetime.datetime.now(), username, amount,))
+                        # add keyword
+                        con.commit()
+                        msg = 'Request for credit submitted!'
+
+        elif request.method == 'POST':
+            # Form is empty... (no POST data)
+            msg = 'Please fill out the form!'
+            print(request.form)
+
+        return render_template('home.html', msg=msg, username=session['username'])
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+# route for manager to accept credit
+@app.route('/pythonlogin/requestedCredit', methods=['GET', 'POST'])
+def requestedCredit():
+    if 'loggedin' in session and session['type'] == 1:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM requestedCredit')
+                requests = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not requests:
+                    msg = 'No Credit requested!'
+                else:
+                    print(book)
+                    return render_template('requestedCredits.html', data=book, username=session['username'])
+        if request.method == 'POST':
+            status = request.form['status']
+            username = request.form['username']
+            amount = request.form['amount']
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                if status == "Approve":
+                    cursor.execute(
+                        "UPDATE Customer SET balance = balance + ? WHERE username = ?", (amount, username, ))
+                    msg = "Balance for user updated"
+
+                cursor.execute(
+                    "DELETE FROM requestedCredit WHERE username = ?", (username, ))
+                con.commit()
+            return render_template('managerhome.html', msg=msg, username=session['username'])
 
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
