@@ -50,6 +50,14 @@
         <!-- <input type="checkbox" id="language" name="type" value="language"> -->
         <label for="type">Language</label><br>
         <input type="text" name="language" placeholder="Language" id="Value" ><br>
+        <label for="type">Sorted By: </label>
+        <input type="radio" id="date" name="criteria" value="date">
+        <label for="type">Publish Date</label>
+        <input type="radio" id="score" name="criteria" value="AVG(score)">
+        <label for="type">Average Numerical Score of Comments</label>
+        <input type="radio" id="trust" name="criteria" value="trustCount">
+        <label for="type">Average Numerical Score of Trusted User Feedbacks</label><br>
+
         <input type="submit" value="Search">
     </form>
     <div class="msg">{{ msg }}</div>

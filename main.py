@@ -406,48 +406,64 @@ def displayBookQuery():
         name = request.args['name']
         publisher = request.args['publisher']
         language = request.args['language']
-
+        reqType = request.args['criteria']
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'GET':
             print("in get")
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
-                # add
-                if not name and not author and not publisher and not language:
-                    # cursor.execute(
-                    #     "SELECT bookData.*, A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN ")
-                    # book = cursor.fetchall()
-                    cursor.execute(
-                        "SELECT bookData.* FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN GROUP BY bookData.ISBN ")
-                    book = cursor.fetchall()
+                if (reqType == "date"):
+                    if not name and not author and not publisher and not language:
+                        cursor.execute(
+                            "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY bookData.date")
+                        book = cursor.fetchall()
+                    else:
+                        if not name:
+                            name = "%"
+                        if not author:
+                            author = "%"
+                        if not publisher:
+                            publisher = "%"
+                        if not language:
+                            language = "%"
+                        cursor.execute(
+                            "SELECT bookData.*, AVG(score), A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? GROUP BY bookData.ISBN ORDER BY bookData.date", (name, publisher, language, author,))
+                        book = cursor.fetchall()
+                elif (reqType == "AVG(score)"):
+                    if not name and not author and not publisher and not language:
+                        cursor.execute(
+                            "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY AVG(score)")
+                        book = cursor.fetchall()
+                    else:
+                        if not name:
+                            name = "%"
+                        if not author:
+                            author = "%"
+                        if not publisher:
+                            publisher = "%"
+                        if not language:
+                            language = "%"
+                        cursor.execute(
+                            "SELECT bookData.*, AVG(score), A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? GROUP BY bookData.ISBN ORDER BY AVG(score)", (name, publisher, language, author,))
+                        book = cursor.fetchall()
 
-                # elif not author:
-                #     if not name:
-                #         name = "%"
-                #     if not publisher:
-                #         publisher = "%"
-                #     if not language:
-                #         language = "%"
-                #     cursor.execute(
-                #         "SELECT bookData.* FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ?", (name, publisher, language, ))
-                #     book = cursor.fetchall()
-
-                else:
-                    if not name:
-                        name = "%"
-                    if not author:
-                        author = "%"
-                    if not publisher:
-                        publisher = "%"
-                    if not language:
-                        language = "%"
-
-                    # cursor.execute(
-                    #     "SELECT bookData.*, A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ?", (name, publisher, language, author, ))
-                    # book = cursor.fetchall()
-                    cursor.execute(
-                        "SELECT bookData.*, A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? GROUP BY bookData.ISBN", (name, publisher, language, author, ))
-                    book = cursor.fetchall()
+                if (reqType == "trustCount"):
+                    if not name and not author and not publisher and not language:
+                        cursor.execute(
+                            "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN (SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trustCount>0)) AS R ON bookData.ISBN = R.ISBN GROUP BY bookData.ISBN ORDER BY AVG(score)")
+                        book = cursor.fetchall()
+                    else:
+                        if not name:
+                            name = "%"
+                        if not author:
+                            author = "%"
+                        if not publisher:
+                            publisher = "%"
+                        if not language:
+                            language = "%"
+                        cursor.execute(
+                            "SELECT bookData.*, AVG(score), A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN (SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trustCount>0)) AS R ON bookData.ISBN = R.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? GROUP BY bookData.ISBN ORDER BY AVG(score)", (name, publisher, language, author,))
+                        book = cursor.fetchall()
 
                 # elif (reqType == "publisher"):
                 #     cursor.execute(
