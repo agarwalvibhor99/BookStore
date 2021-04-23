@@ -49,3 +49,4 @@ SELECT bookData.* FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FR
 SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trustCount>0)
 
 SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN (SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trustCount>0)) AS R ON bookData.ISBN = R.ISBN GROUP BY bookData.ISBN 
+

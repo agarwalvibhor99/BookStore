@@ -6,27 +6,28 @@
 
 <p>Welcome, {{ username }}!</p>
 <h2>New Book Requet</h2>
-<form action="{{ url_for('newBookRequest') }}" method="post" autocomplete="off">
+<form action="{{ url_for('requestNewBook') }}" method="post" autocomplete="off">
                 <label for="ISBN">
 					<i class="fas fa-user"></i>
 				</label>
-				<input type="text" name="ISBN" placeholder="ISBN(9 Digit Number)" id="ISBN" minlength="4" maxlength="8" required>
+				<input type="text" name="ISBN" placeholder="ISBN(9 Digit Number)" id="ISBN" minlength="9" maxlength="9" required>
 
                 <label for="name">
 					<i class="fas fa-user"></i>
 				</label>
 				<input type="text" name="name" placeholder="name" id="name" required>
-                
+
 				<label for="language">
 					<i class="fas fa-lock"></i>
 				</label>
 				<input type="text" name="language" placeholder="language" id="language" required>
-				<label for="noOfPages">
+				<label for="publisher">
 					<i class="fas fa-lock"></i>
 				</label>
-				<input type="text" name="publisher" placeholder="publisher" id="publisher">
-				<label for="date">
-					<i class="fas fa-lock"></i>
-				</label>
+				<input type="text" name="publisher" placeholder="publisher" id="publisher" required>
+                <input type="submit" value="Request Book">
 			</form>
+<div  class="msg">
+    {{msg}}
+</div>
 {% endblock %}

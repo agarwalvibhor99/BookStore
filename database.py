@@ -3,9 +3,6 @@ import sqlite3
 conn = sqlite3.connect('Book.db')
 
 c = conn.cursor()
-# c.execute("""DROP TABLE orders""")
-c.execute("""DROP TABLE Trust""")
-
 
 c.execute("""CREATE TABLE IF NOT EXISTS Customer (
             username TEXT PRIMARY KEY,
@@ -93,6 +90,17 @@ c.execute("""CREATE TABLE IF NOT EXISTS Usefulness (
             PRIMARY KEY(fromUsername, toUsername, ISBN)
           )""")
 
+c.execute("""CREATE TABLE IF NOT EXISTS requestedBook (
+            username TEXT,
+            ISBN TEXT,
+            name TEXT,
+            language TEXT,
+            publisher text,
+            PRIMARY KEY(username, ISBN),
+            FOREIGN KEY(username) REFERENCES Customer(username)
+)
+""")
+
 # c.execute("""CREATE TABLE IF NOT EXISTS Order(
 #             username TEXT,
 #             ISBN TEXT,
@@ -113,9 +121,9 @@ c.execute("""CREATE TABLE IF NOT EXISTS Usefulness (
 #     print(d)
 # c.execute("""DELETE FROM bookData WHERE ISBN = 'ISBN123456789'""")
 # c.execute("""INSERT INTO bookData VALUES('ISBN123456789', 'The Untold Story', 'English','The House', '2002-03-25', 50, 25, 'Life', 200)""")
-conn.commit()
-c.execute("""INSERT INTO bookData VALUES('ISBN000000000', 'The Told Story', 'English','BNPS', '2010-06-23', 60, 30, 'Not Life', 2500)""")
-conn.commit()
+# conn.commit()
+# c.execute("""INSERT INTO bookData VALUES('ISBN000000000', 'The Told Story', 'English','BNPS', '2010-06-23', 60, 30, 'Not Life', 2500)""")
+# conn.commit()
 c.execute("""SELECT * FROM Manager""")
 
 data = c.fetchall()

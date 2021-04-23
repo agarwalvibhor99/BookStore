@@ -191,6 +191,14 @@ def newBook():
                 elif not name or not ISBN or not date or not stock or not price or not subject or not language or not noOfPages or not authorID or not authorName or not keyword or not publisher:
                     msg = 'Please fill out the form!'
                 else:
+                    cursor.execute(
+                        'SELECT * FROM requestedBook WHERE ISBN = ?', (finalISBN,))
+                    requested = cursor.fetchone()
+
+                    if(requested):
+                        cursor.execute(
+                            'DELETE FROM requestedBook WHERE ISBN=?', (finalISBN,))
+
                     # Account doesnt exists and the form data is valid, now insert new account into accounts table
                     cursor.execute(
                         'INSERT INTO bookData(ISBN, name, language, publisher, date, stock, price, subject, noOfPages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', (finalISBN, name, language, publisher, date, stock, price, subject, noOfPages,))
@@ -241,7 +249,7 @@ def newBook():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/newManager', methods=['GET', 'POST'])
+@ app.route('/pythonlogin/newManager', methods=['GET', 'POST'])
 def newManager():
     if 'loggedin' in session and session['type'] == 1:
         msg = ''
@@ -1030,6 +1038,88 @@ def updateProfile():
             # print(request.form)
 
         return render_template('updateProfile.html', msg=msg)
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+# requested book delete while adding book if in this table
+@app.route('/pythonlogin/requestNewBook', methods=['GET', 'POST'])
+def requestNewBook():
+    if 'loggedin' in session and session['type'] == 0:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST' and 'name' in request.form and 'ISBN' in request.form and 'publisher' in request.form and 'language' in request.form:
+            # Create variables for easy access
+            name = request.form['name']
+            ISBN = request.form['ISBN']
+            language = request.form['language']
+            publisher = request.form['publisher']
+
+            finalISBN = "ISBN" + ISBN
+
+            # print("details book: ", name, ISBN, date, stock, price,
+            #       subject, language, noOfPages, authorID, authorName, keyword)
+
+            # Check if account exists using MySQL
+            # print(request.form['authorName'])
+
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM bookData WHERE ISBN = ?', (finalISBN,))
+                book = cursor.fetchone()
+
+                cursor.execute(
+                    'SELECT * FROM requestedBook WHERE ISBN = ?', (finalISBN,))
+                requested = cursor.fetchone()
+
+                # If account exists show error and validation checks
+                if book:
+                    msg = 'Book already exists!'
+
+                elif requested:
+                    msg = "Book already requested!"
+
+                elif not name or not ISBN or not language or not publisher:
+                    msg = 'Please fill out the form!'
+                else:
+                    # Account doesnt exists and the form data is valid, now insert new account into accounts table
+                    cursor.execute(
+                        'INSERT INTO requestedBook(username, ISBN, name, language, publisher) VALUES (?, ?, ?, ?, ?)', (session['username'], finalISBN, name, language, publisher,))
+
+                    # add keyword
+                    con.commit()
+                    msg = 'You have successfully requested the Book!'
+
+        elif request.method == 'POST':
+            # Form is empty... (no POST data)
+            msg = 'Please fill out the form!'
+            print(request.form)
+
+        return render_template('requestNewBook.html', msg=msg, username=session['username'])
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/requestedBooks', methods=['GET', 'POST'])
+def requestedBooks():
+    if 'loggedin' in session and session['type'] == 1:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM requestedBook')
+                book = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not book:
+                    msg = 'No Books requested!'
+                else:
+                    print(book)
+                    return render_template('requestedBooks.html', data=book, username=session['username'])
+
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
