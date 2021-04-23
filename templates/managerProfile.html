@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% block title %}Customer Profile{% endblock %}
+{% block title %}Profile{% endblock %}
 
 {% block content %}
 <h2>Profile Page</h2>
@@ -31,18 +31,6 @@
             <td>Address:</td>
             <td>{{ account[5] }}</td>
         </tr>
-        <tr>
-            <td>Balance:</td>
-            <td>{{ account[6] }}</td>
-        </tr>
-        <tr>
-            <td>You are Trusted by:</td>
-            <td>{{ account[5] }}</td> 
-        </tr>
     </table>
-</div>
-<div>
-    <p><a href="{{ url_for('updateProfile')}}">Update your Profile</a></p>
-        <p>Add Money to your account</p>
 </div>
 {% endblock %}

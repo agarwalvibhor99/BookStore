@@ -995,5 +995,44 @@ def userAward():
     return redirect(url_for('login'))
 
 
+@app.route('/pythonlogin/updateProfile', methods=['GET', 'POST'])
+def updateProfile():
+    # print("request form", request.form['username'])
+    if 'loggedin' in session and session['type'] == 0:
+        msg = ''
+
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST' and ('phone' in request.form or 'address' in request.form or 'password' in request.form):
+
+            # Create variables for easy access
+            phone = session['phone']
+            address = request.form['address']
+            password = request.form['password']
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                if phone:
+                    cursor.execute(
+                        "UPDATE Customer SET phone=? WHERE username=?", (phone, session['username']))
+
+                if address:
+                    cursor.execute(
+                        "UPDATE Customer SET address=? WHERE username=?", (address, session['username']))
+
+                if password:
+                    cursor.execute(
+                        "UPDATE Customer SET password=? WHERE username=?", (password, session['username']))
+
+                msg = "Successfuly updated the profile"
+                con.commit()
+        elif request.method == 'POST':
+            # Form is empty... (no POST data)
+            msg = 'Please fill out the form!'
+            # print(request.form)
+
+        return render_template('updateProfile.html', msg=msg)
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)

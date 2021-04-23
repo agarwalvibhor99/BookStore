@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manager Home{% endblock %}
+
+{% block content %}
+
+<p>Welcome, {{ username }}!</p>
+<h2>New Book Requet</h2>
+<form action="{{ url_for('newBookRequest') }}" method="post" autocomplete="off">
+                <label for="ISBN">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="ISBN" placeholder="ISBN(9 Digit Number)" id="ISBN" minlength="4" maxlength="8" required>
+
+                <label for="name">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="name" placeholder="name" id="name" required>
+                
+				<label for="language">
+					<i class="fas fa-lock"></i>
+				</label>
+				<input type="text" name="language" placeholder="language" id="language" required>
+				<label for="noOfPages">
+					<i class="fas fa-lock"></i>
+				</label>
+				<input type="text" name="publisher" placeholder="publisher" id="publisher">
+				<label for="date">
+					<i class="fas fa-lock"></i>
+				</label>
+			</form>
+{% endblock %}

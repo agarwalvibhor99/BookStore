@@ -8,19 +8,21 @@
 <p><a href="{{ url_for('createOrder') }}">Create a New Order</a></p>
 <p><a href="{{ url_for('addReview') }}">Add a Review</a></p>
 <p><a href="{{ url_for('viewOrder')}}">Check Past Orders</a></p>
+<div>
 <p>Trust/Un-Trust an User</p>
 <form action="{{ url_for('addTrust') }}" method="post">
     <label for="username">Username</label><br>   
     <input type="text" id="username" name="username">
     <input type="radio" id="trust" name="type" value="trust">
-    <label for="type">Trust</label><br>
+    <label for="type">Trust</label>
     <input type="radio" id="untrust" name="type" value="untrust">
-    <label for="type">Untrust</label><br>
+    <label for="type">Untrust</label><br><br>
     <input type="submit" value="Mark User">
 </form>
+</div>
 
 <!-- <p><a href="{{ url_for('displayAllBooks') }}"></a>List all Books: Sorted By (i) Publish Date (ii) average numerical score of comments (iii) average numerical store of trusted user feedbacks</p></a> -->
-<p>List all Books: Sorted By </p>
+<!-- <p>List all Books: Sorted By </p>
     <form action="{{ url_for('displayAllBooks') }}" method="get">
         
         <input type="radio" id="date" name="criteria" value="date">
@@ -30,8 +32,8 @@
         <input type="radio" id="trust" name="criteria" value="trustCount">
         <label for="type">Average Numerical Score of Trusted User Feedbacks</label><br>
         <input type="submit" value="Search">
-    </form>
-
+    </form> -->
+<div>
 <p>Search by</p>
     <form action="{{ url_for('displayBookQuery') }}" method="get">
         
@@ -56,9 +58,10 @@
         <input type="radio" id="score" name="criteria" value="AVG(score)">
         <label for="type">Average Numerical Score of Comments</label>
         <input type="radio" id="trust" name="criteria" value="trustCount">
-        <label for="type">Average Numerical Score of Trusted User Feedbacks</label><br>
+        <label for="type">Average Numerical Score of Trusted User Feedbacks</label><br><br>
 
         <input type="submit" value="Search">
     </form>
+    </div>
     <div class="msg">{{ msg }}</div>
     {% endblock %}
