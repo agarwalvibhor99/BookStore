@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h2>Books in the store</h2>
+<p>Welcome, {{ username }}!</p>
+<p>Author List</p>
+<table>
+
+    <thead>
+      <tr>
+          <th>Author ID</th>
+          <th>Name</th>
+          <th></th>
+          <th></th>
+      </tr>
+      </thead>    
+      <tbody>
+       {% for item in data %}  
+       <form action="{{ url_for('degreeSeparation') }}" method="get" autocomplete="off"> 
+              <tr>
+                  <td style="text-align:center">{{item[0]}}</td>
+                  <td style="text-align:center">{{item[1]}}</td>
+                  <input type="hidden" name="authorID" value="{{ item[0] }}"/>
+                  <td><button type="submit" name="degree" value="onedegree">One Degree Separated</button></td>
+                  <td><button type="submit" name="degree" value="twodegree">Two Degree Separated</button></td>
+
+                  <!-- <td><input type="submit" name="onedegree" value="One Degree Separated Authors">
+                  <td><input type="submit" name="twodegree" value="Two Degree Separated Authors"> -->
+              </tr>
+            </form>
+          {% endfor %}
+      </tbody>
+  </table>
+
+{% endblock %}

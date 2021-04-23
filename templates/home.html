@@ -6,6 +6,8 @@
 <h2>Home Page</h2>
 <p>Welcome back, {{ username }}!</p>
 <p><a href="{{ url_for('createOrder') }}">Create a New Order</a></p>
+<p><a href="{{ url_for('buyingSuggestion') }}">Suggested Books</a></p>
+<p><a href="{{ url_for('displayAuthor') }}">Author Informations</a></p>
 <p><a href="{{ url_for('addReview') }}">Add a Review</a></p>
 <p><a href="{{ url_for('viewOrder')}}">Check Past Orders</a></p>
 <div>
@@ -69,7 +71,7 @@
         <form action="{{ url_for('requestCredit') }}" method="post">
             <label for="amount">Amount</label><br>
             <input type="number" name="amount" placeholder="Amount" id="amount"required><br>
-            <button type="submit" name="amount">Request Credits</button>
+            <button type="submit">Request Credits</button>
         </form>
     </div>
     <div class="msg">{{ msg }}</div>

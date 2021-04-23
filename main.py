@@ -331,7 +331,7 @@ def addTrust():
     # print("request form", request.form['username'])
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
-
+        print(request)
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'POST' and 'username' in request.form:
 
@@ -1135,7 +1135,7 @@ def requestCredit():
         msg = ''
 
         # return render_template('home.html', msg="Hello")
-
+        print(request)
         if request.method == 'POST':
             # Create variables for easy access
             amount = request.form['amount']
@@ -1206,6 +1206,73 @@ def requestedCredit():
 
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/buyingSuggestion', methods=['GET', 'POST'])
+def buyingSuggestion():
+    if 'loggedin' in session and (session['type'] == 0):
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute('SELECT * FROM bookData WHERE ISBN IN (SELECT DISTINCT(ISBN) FROM (SELECT orderID from orderItem  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = ?)) AS A LEFT JOIN orderItem ON A.orderID = orderItem.orderID WHERE ISBN NOT IN (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = ?))',
+                               (session['username'], session['username'],))
+                book = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not book:
+                    msg = 'Sorry! There are no suggested books in the store for you!'
+                else:
+                    print(book)
+                    return render_template('buyingSuggestion.html', data=book, username=session['username'])
+
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/displayAuthor', methods=['GET', 'POST'])
+def displayAuthor():
+    if 'loggedin' in session and (session['type'] == 1 or session['type'] == 0):
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM Author')
+                author = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not author:
+                    msg = 'No Author Found!'
+                else:
+                    print(author)
+                    return render_template('displayAuthor.html', data=author, username=session['username'])
+
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/degreeSeparation', methods=['GET', 'POST'])
+def degreeSeparation():
+    if 'loggedin' in session and (session['type'] == 1 or session['type'] == 0):
+        msg = ''
+        authorID = request.args['authorID']
+        degree = request.args['degree']
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET' and authorID and degree:
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT authorID, authorName FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?', (authorID, authorID,))
+                author = cursor.fetchall()
+                # If account exists show error and validation checks
+                if not author:
+                    msg = 'No Author Found!'
+                else:
+                    print(author)
+                    return render_template('displayAuthor.html', data=author, username=session['username'])
 
 
 if __name__ == '__main__':
