@@ -36,13 +36,24 @@
             <td>{{ account[6] }}</td>
         </tr>
         <tr>
+            <td>Joining Date:</td>
+            <td>{{ account[7] }}</td> 
+        </tr>
+        <tr>
             <td>You are Trusted by:</td>
-            <td>{{ account[5] }}</td> 
+            <td>{{ account[8] }}</td> 
         </tr>
     </table>
 </div>
 <div>
     <p><a href="{{ url_for('updateProfile')}}">Update your Profile</a></p>
-        <p>Add Money to your account</p>
 </div>
+<div>
+    <p>Add Money to your account</p>
+        <form action="{{ url_for('requestNewCredit') }}" method="post">
+            <label for="amount">Amount</label><br>
+            <input type="number" name="amount" placeholder="Amount" id="amount"required><br>
+            <button type="submit">Request Credits</button>
+        </form>
+    </div>
 {% endblock %}

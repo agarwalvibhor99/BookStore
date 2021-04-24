@@ -31,6 +31,17 @@
             <td>Address:</td>
             <td>{{ account[5] }}</td>
         </tr>
+        <tr>
+            <td>Salary:</td>
+            <td>{{ account[6] }}</td>
+        </tr>
+        <tr>
+            <td>Books Added:</td>
+            <td>{{ account[7] }}</td>
+        </tr>
     </table>
+</div>
+<div>
+    <p><a href="{{ url_for('updateProfile')}}">Update your Profile</a></p>
 </div>
 {% endblock %}

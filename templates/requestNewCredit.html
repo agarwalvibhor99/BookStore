@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manager Home{% endblock %}
+
+{% block content %}
+
+<p>Welcome, {{ username }}!</p>
+<h2>Request Credit </h2>
+
+<form action="{{ url_for('requestNewCredit') }}" method="post" autocomplete="off">
+    <label for="amount">
+        <i class="fas fa-user"></i>
+    </label>
+    <input type="number" name="amount" placeholder="Amount" id="amount" required>
+
+
+    <input type="submit" value="Send Credit Request">
+</form>
+
+
+<div  class="msg">
+    {{msg}}
+</div>
+{% endblock %}

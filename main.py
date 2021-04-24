@@ -318,6 +318,8 @@ def profile():
                 account = cursor.fetchone()
             # Show the profile page with account info
             print(account)
+            if session['type'] == 1:
+                return render_template('managerProfile.html', account=account)
             return render_template('profile.html', account=account)
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
@@ -356,7 +358,7 @@ def addTrust():
                 if(record):
                     msg = "You have already marked the User"
                     return render_template('home.html', msg=msg)
-                if(reqType == "trust"):
+                elif(reqType == "trust"):
                     cursor.execute(
                         'UPDATE Customer SET trustCount = trustCount + 1 WHERE username = ?', (request.form['username'],))
                     cursor.execute(
@@ -1006,9 +1008,8 @@ def userAward():
 @app.route('/pythonlogin/updateProfile', methods=['GET', 'POST'])
 def updateProfile():
     # print("request form", request.form['username'])
-    if 'loggedin' in session and session['type'] == 0:
+    if 'loggedin' in session and (session['type'] == 0 or session['type'] == 1):
         msg = ''
-
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'POST' and ('phone' in request.form or 'address' in request.form or 'password' in request.form):
 
@@ -1129,44 +1130,69 @@ def requestedBooks():
 # route for user to request credit
 
 
-@app.route('/pythonlogin/requestCredit', methods=['GET', 'POST'])
-def requestCredit():
+@app.route('/pythonlogin/requestNewCredit', methods=['GET', 'POST'])
+def requestNewCredit():
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
-
-        # return render_template('home.html', msg="Hello")
-        print(request)
-        if request.method == 'POST':
-            # Create variables for easy access
-            amount = request.form['amount']
-            # Check if account exists using MySQL
+        if request.method == 'POST' and 'name' in request.form:
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 cursor.execute(
-                    'SELECT * FROM requestedCredit WHERE username = ?', (
-                        session['username'],)
-                )
+                    'SELECT * FROM requestedCredit WHERE username = ?', (session['username'],))
                 request = cursor.fetchone()
                 if request:
-                    msg = "You already have a pending request"
-
-                else:
-                    # Account doesnt exists and the form data is valid, now insert new account into accounts table
-                    if not comment:
-                        cursor.execute(
-                            'INSERT INTO requestedCredit(date, username, amount) VALUES (?, ?, ?)', (datetime.datetime.now(), username, amount,))
-                        # add keyword
-                        con.commit()
-                        msg = 'Request for credit submitted!'
-
+                    msg = "You already have a pending request. Try again later!"
+                cursor.execute('INSERT INTO requestedCredit(date, username, amount) VALUES (?, ?, ?)', (
+                    datetime.datetime.now(), username, amount,))
+                # add keyword
+                con.commit()
+                msg = 'Request for credit submitted!'
         elif request.method == 'POST':
             # Form is empty... (no POST data)
             msg = 'Please fill out the form!'
             print(request.form)
-
         return render_template('home.html', msg=msg, username=session['username'])
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
+
+
+# @app.route('/pythonlogin/requestCredit', methods=['GET', 'POST'])
+# def requestCredit():
+#     if 'loggedin' in session and session['type'] == 0:
+#         msg = ''
+#         # return render_template('home.html', msg="Hello")
+#         print(request)
+#         if request.method == 'POST':
+#             # Create variables for easy access
+#             amount = request.form['amount']
+#             # Check if account exists using MySQL
+#             with sql.connect("Book.db") as con:
+#                 cursor = con.cursor()
+#                 cursor.execute(
+#                     'SELECT * FROM requestedCredit WHERE username = ?', (
+#                         session['username'],)
+#                 )
+#                 request = cursor.fetchone()
+#                 if request:
+#                     msg = "You already have a pending request"
+
+#                 else:
+#                     # Account doesnt exists and the form data is valid, now insert new account into accounts table
+#                     if not comment:
+#                         cursor.execute(
+#                             'INSERT INTO requestedCredit(date, username, amount) VALUES (?, ?, ?)', (datetime.datetime.now(), username, amount,))
+#                         # add keyword
+#                         con.commit()
+#                         msg = 'Request for credit submitted!'
+
+#         elif request.method == 'POST':
+#             # Form is empty... (no POST data)
+#             msg = 'Please fill out the form!'
+#             print(request.form)
+
+#         return render_template('home.html', msg=msg, username=session['username'])
+#         # User is not loggedin redirect to login page
+#     return redirect(url_for('login'))
 
 
 # route for manager to accept credit
@@ -1181,13 +1207,12 @@ def requestedCredit():
                 cursor.execute(
                     'SELECT * FROM requestedCredit')
                 requests = cursor.fetchall()
-
+                print(requests)
                 # If account exists show error and validation checks
                 if not requests:
                     msg = 'No Credit requested!'
                 else:
-                    print(book)
-                    return render_template('requestedCredits.html', data=book, username=session['username'])
+                    return render_template('requestedCredit.html', data=requests, username=session['username'])
         if request.method == 'POST':
             status = request.form['status']
             username = request.form['username']
@@ -1202,7 +1227,7 @@ def requestedCredit():
                 cursor.execute(
                     "DELETE FROM requestedCredit WHERE username = ?", (username, ))
                 con.commit()
-            return render_template('managerhome.html', msg=msg, username=session['username'])
+        return render_template('managerhome.html', msg=msg, username=session['username'])
 
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
@@ -1264,15 +1289,16 @@ def degreeSeparation():
         if request.method == 'GET' and authorID and degree:
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
-                cursor.execute(
-                    'SELECT authorID, authorName FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?', (authorID, authorID,))
-                author = cursor.fetchall()
-                # If account exists show error and validation checks
-                if not author:
-                    msg = 'No Author Found!'
-                else:
-                    print(author)
-                    return render_template('displayAuthor.html', data=author, username=session['username'])
+                if degree == "onedegree":
+                    cursor.execute(
+                        'SELECT authorID, authorName FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?', (authorID, authorID,))
+                    author = cursor.fetchall()
+                    # If account exists show error and validation checks
+                    if not author:
+                        msg = 'No Author Found!'
+                    else:
+                        print(author)
+                        return render_template('displayAuthor.html', data=author, username=session['username'])
 
 
 if __name__ == '__main__':
