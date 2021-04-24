@@ -3,6 +3,8 @@ import sqlite3
 conn = sqlite3.connect('Book.db')
 
 c = conn.cursor()
+# c.execute('DROP Table orders')
+# c.execute('DROP Table orderItem')
 
 c.execute("""CREATE TABLE IF NOT EXISTS Customer (
             username TEXT PRIMARY KEY,
@@ -52,7 +54,9 @@ c.execute("""CREATE TABLE IF NOT EXISTS orders (
             orderID TEXT,
             username TEXT,
             totalAmt FLOAT,
-            PRIMARY KEY(orderID)
+            date DATETIME,
+            PRIMARY KEY(orderID),
+            FOREIGN KEY(orderID) REFERENCES orderItem(orderID)
           )""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS orderItem (
@@ -62,7 +66,7 @@ c.execute("""CREATE TABLE IF NOT EXISTS orderItem (
             unitPrice FLOAT,
             PRIMARY KEY(orderID, ISBN),
             FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
-            FOREIGN KEY(orderID) REFERENCES orders(orderID)
+            FOREIGN KEY(orderID) REFERENCES orders(orderID) ON DELETE CASCADE
           )""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS Review (

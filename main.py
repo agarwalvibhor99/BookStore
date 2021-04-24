@@ -6,6 +6,7 @@ from flask_uuid import FlaskUUID
 import sqlite3 as sql
 import re
 import datetime
+from datetime import timedelta
 import uuid
 
 
@@ -586,10 +587,11 @@ def addToCart():
                             'INSERT INTO orderItem(orderID, ISBN, quantity, unitPrice) VALUES (?, ?, ?, ?)', (orderID.hex, ISBN, qty, unitPrice))
                     # add keyword
 
-                        msg = 'You have successfully added new Manager!'
+                        msg = 'Order successfully placed! Total Amount for your order is $' + \
+                            str(totalAmt)
                 print(totalAmt)
                 cursor.execute(
-                    'INSERT INTO orders(orderID, username, totalAmt) VALUES (?, ?, ?)', (orderID.hex, session['username'], totalAmt))
+                    'INSERT INTO orders(orderID, username, totalAmt, date) VALUES (?, ?, ?, ?)', (orderID.hex, session['username'], totalAmt, datetime.datetime.now(),))
                 con.commit()
                 orderID = 0
                 totalAmt = 0
@@ -599,7 +601,7 @@ def addToCart():
                 # print("session", session['cartItem'])
                 # ADD CODE TO CHECK QUANTITY
                 # print(book)
-
+                return render_template("home.html", msg=msg)
                 # If account exists show error and validation checks
 
         elif request.method == 'POST':
@@ -1299,6 +1301,49 @@ def degreeSeparation():
                     else:
                         print(author)
                         return render_template('displayAuthor.html', data=author, username=session['username'])
+
+
+@app.route('/pythonlogin/cancelOrder', methods=['GET', 'POST'])
+def cancelOrder():
+    if 'loggedin' in session and session['type'] == 0:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                lastDate = datetime.datetime.now() - timedelta(days=1)
+                cursor.execute(
+                    'SELECT orders.* FROM orders WHERE orders.username = ? AND orders.date>?', (session['username'], lastDate, ))
+                order = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not order:
+                    msg = 'No order in past 1 day!'
+                    return render_template('home.html', msg=msg)
+                else:
+                    print(order)
+                    return render_template('cancelOrder.html', data=order, username=session['username'])
+        if request.method == 'POST':
+            print("in Post")
+            orderID = request.form['orderID']
+            totalAmt = request.form['totalAmt']
+            print("order, amt", orderID, totalAmt)
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'UPDATE Customer SET balance = balance + ? WHERE username = ?', (totalAmt, session['username'],))
+                cursor.execute(
+                    'DELETE FROM orders WHERE orderID = ?', (orderID,))
+                # on cascade not working
+                cursor.execute(
+                    'DELETE FROM orderItem WHERE orderID = ?', (orderID,))
+
+                con.commit()
+            msg = "Order successfully cancelled and the amount is credited to your account"
+            return render_template('home.html', msg=msg, username=session['username'])
+
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
