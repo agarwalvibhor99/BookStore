@@ -1369,5 +1369,68 @@ def displayCustomer():
     return redirect(url_for('login'))
 
 
+@app.route('/pythonlogin/deleteCustomer', methods=['GET', 'POST'])
+def deleteCustomer():
+    # print("request form", request.form['username'])
+    if 'loggedin' in session and session['type'] == 0:
+        msg = ''
+        print(request)
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    "DELETE FROM Customer WHERE username = ?", (session['username'],))
+                cursor.execute(
+                    "UPDATE Review SET username='OLD USER' WHERE username = ?", (session['username'],))
+                cursor.execute(
+                    "UPDATE Trust SET fromUsername='OLD USER' WHERE fromUsername = ?", (session['username'],))
+                cursor.execute(
+                    "DELETE FROM Trust WHERE toUsername = ?", (session['username'],))
+                cursor.execute(
+                    "UPDATE Usefulness SET fromUsername='OLD USER' WHERE fromUsername = ?", (session['username'],))
+                cursor.execute(
+                    "DELETE FROM Usefulness WHERE toUsername = ?", (session['username'],))
+                cursor.execute(
+                    "SELECT orderID FROM orders WHERE username = ?", (session['username'],))
+                orders = cursor.fetchall()
+                if orders:
+                    for order in orders:
+                        print("orderID:", order)
+                        cursor.execute(
+                            "DELETE FROM orderItem WHERE orderID = ?", (order,))
+                cursor.execute(
+                    "DELETE FROM orders WHERE username = ?", (session['username'],))
+                cursor.execute(
+                    "DELETE FROM requestedBook WHERE username = ?", (session['username'],))
+                cursor.execute(
+                    "DELETE FROM requestedCredit WHERE toUsername = ?", (session['username'],))
+                msg = "All your Data has been removed from the Book Store System"
+                con.commit()
+
+        # User is not loggedin redirect to login page or data removed
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/bestEmployee', methods=['GET', 'POST'])
+def bestEmployee():
+    if 'loggedin' in session and session['type'] == 1:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM Manager GROUP BY username HAVING MAX(booksAdded)')
+                manager = cursor.fetchall()
+
+                # If account exists show error and validation checks
+
+                return render_template('bestEmployee.html', data=manager, username=session['username'])
+
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
