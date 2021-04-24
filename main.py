@@ -1346,5 +1346,28 @@ def cancelOrder():
     return redirect(url_for('login'))
 
 
+@app.route('/pythonlogin/displayCustomer', methods=['GET', 'POST'])
+def displayCustomer():
+    if 'loggedin' in session and session['type'] == 1:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM Customer')
+                customer = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not customer:
+                    msg = 'No Customer Registered!'
+                else:
+                    print(customer)
+                    return render_template('displayCustomer.html', data=customer, username=session['username'])
+
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
