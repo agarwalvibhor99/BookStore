@@ -152,6 +152,7 @@ def newBook():
         msg = ''
         count = 0
         print(request.form)
+        # To take care of multiple author
         for key in request.form:
             count += 1
         print("numbner of keys", count)
@@ -170,6 +171,8 @@ def newBook():
             authorName = request.form['authorName']
             keyword = request.form['keyword']
             publisher = request.form['publisher']
+            authorCount = request.form['authorCount']
+            keywordCount = request.form['keywordCount']
 
             finalISBN = "ISBN" + ISBN
 
@@ -215,14 +218,11 @@ def newBook():
 
                     cursor.execute(
                         'INSERT INTO writtenBY(ISBN, authorID) VALUES (?, ?)', (finalISBN, authorID,))
-
-                    if count > 12:
-                        innerCount = 1
-                        for i in range(13, count):
-                            authorID = "authorID" + str(innerCount)
-                            authorName = "authorName" + str(innerCount)
-                            innerCount += 1
-
+                    authorCount = int(float(authorCount))
+                    if authorCount > 1:
+                        for i in range(1, authorCount):
+                            authorID = "authorID" + str(i)
+                            authorName = "authorName" + str(i)
                             authorID = request.form[authorID]
                             authorName = request.form[authorName]
                             print(authorID, authorName)
@@ -236,7 +236,47 @@ def newBook():
                             cursor.execute(
                                 'INSERT INTO writtenBY(ISBN, authorID) VALUES (?, ?)', (finalISBN, authorID,))
 
-                    # add keyword
+                    cursor.execute(
+                        'SELECT keywordID FROM Keyword WHERE name = ?', (keyword,))
+                    keywordID = cursor.fetchone()
+                # add multiple author for
+                # If author exists show error and validation checks
+                    if not keywordID:
+                        cursor.execute(
+                            'INSERT INTO Keyword(name) VALUES (?)', (keyword,))
+                        cursor.execute(
+                            'SELECT keywordID FROM Keyword WHERE name = ?', (keyword,))
+                        keywordID = cursor.fetchone()
+                        cursor.execute('SELECT * FROM Keyword')
+                        test = cursor.fetchall()
+                        print("Test: ", test)
+                    print("line 252:", finalISBN, keywordID,
+                          type(keywordID), keywordID[0])
+                    cursor.execute(
+                        'INSERT INTO containKeyword(ISBN, keywordID) VALUES (?, ?)', (finalISBN, keywordID[0],))
+                    keywordCount = int(float(keywordCount))
+                    if keywordCount > 1:
+                        for i in range(1, keywordCount):
+                            keyword = "keyword" + str(i)
+
+                            keyword = request.form[keyword]
+                            print(keyword)
+
+                            cursor.execute(
+                                'SELECT keywordID FROM Keyword WHERE name = ?', (keyword,))
+                            keywordID = cursor.fetchone()
+                            # add multiple author for
+                            # If author exists show error and validation checks
+                            if not keywordID:
+                                cursor.execute(
+                                    'INSERT INTO Keyword(name) VALUES (?)', (keyword,))
+                                cursor.execute(
+                                    'SELECT keywordID FROM Keyword WHERE name = ?', (keyword,))
+                                keywordID = cursor.fetchone()
+
+                            cursor.execute(
+                                'INSERT INTO containKeyword(ISBN, keywordID) VALUES (?, ?)', (finalISBN, keywordID[0],))
+
                     con.commit()
                     msg = 'You have successfully added Book!'
 
@@ -1118,10 +1158,13 @@ def requestedBooks():
                 cursor.execute(
                     'SELECT * FROM requestedBook')
                 book = cursor.fetchall()
-
+                print(book)
                 # If account exists show error and validation checks
                 if not book:
+                    print("hii in here")
                     msg = 'No Books requested!'
+                    return render_template('managerhome.html', msg=msg,
+                                           username=session['username'])
                 else:
                     print(book)
                     return render_template('requestedBooks.html', data=book, username=session['username'])

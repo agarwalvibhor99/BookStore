@@ -3,7 +3,7 @@ import sqlite3
 conn = sqlite3.connect('Book.db')
 
 c = conn.cursor()
-# c.execute('DROP Table orders')
+# c.execute('DROP Table containKeyword')
 # c.execute('DROP Table orderItem')
 
 c.execute("""CREATE TABLE IF NOT EXISTS Customer (
@@ -113,6 +113,20 @@ c.execute("""CREATE TABLE IF NOT EXISTS requestedCredit (
 )
 """)
 
+c.execute("""CREATE TABLE IF NOT EXISTS containKeyword (
+            ISBN TEXT,
+            keywordID INTEGER,
+            PRIMARY KEY(ISBN, keywordID),
+            FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
+            FOREIGN KEY(keywordID) REFERENCES Keyword(keywordID)
+)""")
+
+
+c.execute("""CREATE TABLE IF NOT EXISTS Keyword (
+            keywordID INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL
+)""")
+
 # c.execute("""CREATE TABLE IF NOT EXISTS Order(
 #             username TEXT,
 #             ISBN TEXT,
@@ -137,7 +151,10 @@ c.execute("""CREATE TABLE IF NOT EXISTS requestedCredit (
 # c.execute("""INSERT INTO bookData VALUES('ISBN000000000', 'The Told Story', 'English','BNPS', '2010-06-23', 60, 30, 'Not Life', 2500)""")
 # conn.commit()
 c.execute("""SELECT * FROM Manager""")
-
-data = c.fetchall()
+# c.execute('INSERT INTO Keyword(name) VALUES ("HELLO")')
+conn.commit()
+c.execute("SELECT keywordID FROM Keyword where name='HELLO'")
+data = c.fetchone()
+print(data[0])
 for d in data:
     print(d)

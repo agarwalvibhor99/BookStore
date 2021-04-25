@@ -6,6 +6,8 @@
 <h2>Home Page</h2>
 <p>Welcome Manager, {{ username }}!</p>
 <p><a href="{{ url_for('newManager') }}">Add another Manager</p>
+<p><a href="{{ url_for('displayAuthor') }}">Author Informations</a></p>
+
 <p><a href="{{ url_for('newBook') }}">Add New Book</p>
 <p><a href="{{ url_for('updateStock')}}">Update Stock</a></p>    
 <p><a href="{{ url_for('bookStatistics')}}">Book Statistics</a></p>    
@@ -14,6 +16,36 @@
 <p><a href="{{ url_for('requestedCredit')}}">Requested Credit</a></p>
 <p><a href="{{ url_for('displayCustomer')}}">Display All Customer</a></p>
 <p><a href="{{ url_for('bestEmployee')}}">Best Employee</a></p>
+
+<p>Search by</p>
+    <form action="{{ url_for('displayBookQuery') }}" method="get">
+        
+        <!-- <input type="checkbox" id="author" name="type" value="author"> -->
+        <label for="type">Author</label><br>
+        <input type="text" name="author" placeholder="Author" id="Value" ><br>
+
+        <!-- <input type="checkbox" id="publisher" name="type" value="publisher"> -->
+        <label for="type">Publisher</label><br>
+        <input type="text" name="publisher" placeholder="Publisher" id="Value"><br>
+
+        <!-- <input type="checkbox" id="name" name="type" value="name"> -->
+        <label for="type">Name</label><br>
+        <input type="text" name="name" placeholder="Name" id="Value" ><br>
+
+        <!-- <input type="checkbox" id="language" name="type" value="language"> -->
+        <label for="type">Language</label><br>
+        <input type="text" name="language" placeholder="Language" id="Value" ><br>
+        <label for="type">Sorted By: </label>
+        <input type="radio" id="date" name="criteria" value="date">
+        <label for="type">Publish Date</label>
+        <input type="radio" id="score" name="criteria" value="AVG(score)">
+        <label for="type">Average Numerical Score of Comments</label>
+        <input type="radio" id="trust" name="criteria" value="trustCount">
+        <label for="type">Average Numerical Score of Trusted User Feedbacks</label><br><br>
+
+        <input type="submit" value="Search">
+    </form>
+    </div>
 
 <div class="msg">{{ msg }}</div>
 {% endblock %}
