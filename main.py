@@ -130,6 +130,8 @@ def home():
     if 'loggedin' in session and session['type'] == 0:
         # User is loggedin show them the home page
         return render_template('home.html', username=session['username'])
+    elif 'loggedin' in session and session['type'] == 1:
+        return render_template('managerhome.html', username=session['username'])
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
@@ -157,7 +159,7 @@ def newBook():
             count += 1
         print("numbner of keys", count)
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
-        if request.method == 'POST' and 'name' in request.form and 'ISBN' in request.form and 'date' in request.form and 'publisher' in request.form and 'stock' in request.form and 'price' in request.form and 'subject' in request.form and 'language' in request.form and 'noOfPages' in request.form and 'authorID' in request.form and 'authorName' in request.form:
+        if request.method == 'POST' and 'name' in request.form and 'ISBN' in request.form and 'date' in request.form and 'publisher' in request.form and 'stock' in request.form and 'price' in request.form and 'subject' in request.form and 'language' in request.form and 'noOfPages' in request.form and 'authorName' in request.form:
             # Create variables for easy access
             name = request.form['name']
             ISBN = request.form['ISBN']
@@ -167,7 +169,7 @@ def newBook():
             subject = request.form['subject']
             language = request.form['language']
             noOfPages = request.form['noOfPages']
-            authorID = request.form['authorID']
+            # authorID = request.form['authorID']
             authorName = request.form['authorName']
             keyword = request.form['keyword']
             publisher = request.form['publisher']
@@ -176,6 +178,9 @@ def newBook():
 
             finalISBN = "ISBN" + ISBN
 
+            date = date.split("/")
+            date = [int(x) for x in date]
+            date = datetime.datetime(date[2], date[1], date[0])
             # print("details book: ", name, ISBN, date, stock, price,
             #       subject, language, noOfPages, authorID, authorName, keyword)
 
@@ -192,7 +197,7 @@ def newBook():
                 if book:
                     msg = 'Book already exists!'
 
-                elif not name or not ISBN or not date or not stock or not price or not subject or not language or not noOfPages or not authorID or not authorName or not keyword or not publisher:
+                elif not name or not ISBN or not date or not stock or not price or not subject or not language or not noOfPages or not authorName or not keyword or not publisher:
                     msg = 'Please fill out the form!'
                 else:
                     cursor.execute(
@@ -208,33 +213,39 @@ def newBook():
                         'INSERT INTO bookData(ISBN, name, language, publisher, date, stock, price, subject, noOfPages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', (finalISBN, name, language, publisher, date, stock, price, subject, noOfPages,))
 
                     cursor.execute(
-                        'SELECT * FROM Author WHERE authorID = ?', (authorID,))
+                        'SELECT authorID FROM Author WHERE name = ?', (authorName,))
                     author = cursor.fetchone()
-                # add multiple author for
-                # If author exists show error and validation checks
                     if not author:
                         cursor.execute(
-                            'INSERT INTO Author(authorID, name) VALUES (?, ?)', (authorID, authorName,))
+                            'INSERT INTO Author(name) VALUES (?)', (authorName,))
+                        cursor.execute(
+                            'SELECT authorID FROM Author WHERE name = ?', (authorName,))
+                        authorID = cursor.fetchone()
 
                     cursor.execute(
-                        'INSERT INTO writtenBY(ISBN, authorID) VALUES (?, ?)', (finalISBN, authorID,))
+                        'INSERT INTO writtenBy(ISBN, authorID) VALUES (?, ?)', (finalISBN, authorID[0],))
+                # add multiple author for
+                # If author exists show error and validation checks
+
                     authorCount = int(float(authorCount))
                     if authorCount > 1:
                         for i in range(1, authorCount):
-                            authorID = "authorID" + str(i)
+                            # authorID = "authorID" + str(i)
                             authorName = "authorName" + str(i)
-                            authorID = request.form[authorID]
+                            # authorID = request.form[authorID]
                             authorName = request.form[authorName]
-                            print(authorID, authorName)
+                            print(authorName)
                             cursor.execute(
-                                'SELECT * FROM Author WHERE authorID = ?', (authorID,))
+                                'SELECT authorID FROM Author WHERE name = ?', (authorName,))
                             author = cursor.fetchone()
                             if not author:
                                 cursor.execute(
-                                    'INSERT INTO Author(authorID, name) VALUES (?, ?)', (authorID, authorName,))
-
+                                    'INSERT INTO Author(name) VALUES (?)', (authorName,))
+                                cursor.execute(
+                                    'SELECT authorID FROM Author WHERE name = ?', (authorName,))
+                                authorID = cursor.fetchone()
                             cursor.execute(
-                                'INSERT INTO writtenBY(ISBN, authorID) VALUES (?, ?)', (finalISBN, authorID,))
+                                'INSERT INTO writtenBY(ISBN, authorID) VALUES (?, ?)', (finalISBN, authorID[0],))
 
                     cursor.execute(
                         'SELECT keywordID FROM Keyword WHERE name = ?', (keyword,))
@@ -247,11 +258,11 @@ def newBook():
                         cursor.execute(
                             'SELECT keywordID FROM Keyword WHERE name = ?', (keyword,))
                         keywordID = cursor.fetchone()
-                        cursor.execute('SELECT * FROM Keyword')
-                        test = cursor.fetchall()
-                        print("Test: ", test)
-                    print("line 252:", finalISBN, keywordID,
-                          type(keywordID), keywordID[0])
+                    #     cursor.execute('SELECT * FROM Keyword')
+                    #     test = cursor.fetchall()
+                    #     print("Test: ", test)
+                    # print("line 252:", finalISBN, keywordID,
+                    #       type(keywordID), keywordID[0])
                     cursor.execute(
                         'INSERT INTO containKeyword(ISBN, keywordID) VALUES (?, ?)', (finalISBN, keywordID[0],))
                     keywordCount = int(float(keywordCount))
@@ -381,7 +392,7 @@ def addTrust():
             # Create variables for easy access
             if request.form['username'] == session['username']:
                 msg = "Can't mark yourself trusted"
-                return render_template('home.html', msg=msg)
+                return render_template('home.html', msg=msg, username=session['username'])
             fromUsername = session['username']
             toUsername = request.form['username']
             reqType = request.form['type']
@@ -392,13 +403,13 @@ def addTrust():
                 customer = cursor.fetchone()
                 if not customer:
                     msg = "Invalid Username"
-                    return render_template('home.html', msg=msg)
+                    return render_template('home.html', msg=msg, username=session['username'])
                 cursor.execute(
                     "SELECT * FROM Trust WHERE fromUsername = ? AND toUsername=?", (fromUsername, toUsername,))
                 record = cursor.fetchone()
                 if(record):
                     msg = "You have already marked the User"
-                    return render_template('home.html', msg=msg)
+                    return render_template('home.html', msg=msg, username=session['username'])
                 elif(reqType == "trust"):
                     cursor.execute(
                         'UPDATE Customer SET trustCount = trustCount + 1 WHERE username = ?', (request.form['username'],))
@@ -418,7 +429,7 @@ def addTrust():
             msg = 'Please fill out the form!'
             # print(request.form)
 
-        return render_template('home.html', msg=msg)
+        return render_template('home.html', msg=msg, username=session['username'])
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
@@ -534,7 +545,7 @@ def displayBookQuery():
                 # If account exists show error and validation checks
                 if not book:
                     msg = 'There are no books in the store with this name!'
-                    return render_template('home.html', msg=msg)
+                    return render_template('home.html', msg=msg, username=session['username'])
                 else:
                     print(book)
                     return render_template('displayAllBooks.html', data=book, username=session['username'])
@@ -610,7 +621,7 @@ def addToCart():
                     qty = int(request.form[key])
                     totalAmt += book[6]*qty
                     if(int(book[5]) < int(request.form[key])):
-                        return render_template('home.html', msg=msg)
+                        return render_template('home.html', msg=msg, username=session['username'])
                     else:
                         newQuantity = book[5]-int(request.form[key])
                         cursor.execute(
@@ -641,7 +652,7 @@ def addToCart():
                 # print("session", session['cartItem'])
                 # ADD CODE TO CHECK QUANTITY
                 # print(book)
-                return render_template("home.html", msg=msg)
+                return render_template("home.html", msg=msg, username=session['username'])
                 # If account exists show error and validation checks
 
         elif request.method == 'POST':
@@ -929,7 +940,7 @@ def markUsefull():
         if request.method == 'POST':
             if(session['username'] == a[0]):
                 msg = "Can't mark your own review"
-                return render_template("home.html", msg=msg)
+                return render_template("home.html", msg=msg, username=session['username'])
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 cursor.execute("SELECT * FROM Usefulness WHERE fromUsername = ? AND toUsername = ? AND ISBN = ? ",
@@ -997,7 +1008,7 @@ def bookStatistics():
                 # If account exists show error and validation checks
                 if not book:
                     msg = 'There are no books in the store with this name!'
-                    return render_template('home.html', msg=msg)
+                    return render_template('home.html', msg=msg, username=session['username'])
                 else:
                     print(book)
                     return render_template('bookStatistics.html', data=book, username=session['username'])
@@ -1037,7 +1048,7 @@ def userAward():
                 # If account exists show error and validation checks
                 if not data:
                     msg = 'There are no books in the store with this name!'
-                    return render_template('home.html', msg=msg)
+                    return render_template('home.html', msg=msg, username=session['username'])
                 else:
                     print(data)
                     return render_template('userAward.html', data=data, username=session['username'])
@@ -1293,6 +1304,7 @@ def buyingSuggestion():
                 # If account exists show error and validation checks
                 if not book:
                     msg = 'Sorry! There are no suggested books in the store for you!'
+                    return render_template('home.html', msg=msg, username=session['username'])
                 else:
                     print(book)
                     return render_template('buyingSuggestion.html', data=book, username=session['username'])
@@ -1362,7 +1374,7 @@ def cancelOrder():
                 # If account exists show error and validation checks
                 if not order:
                     msg = 'No order in past 1 day!'
-                    return render_template('home.html', msg=msg)
+                    return render_template('home.html', msg=msg, username=session['username'])
                 else:
                     print(order)
                     return render_template('cancelOrder.html', data=order, username=session['username'])

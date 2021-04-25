@@ -10,24 +10,24 @@
 	
 function addAuthor(){
 	var authorName = "authorName"+countAuthor
-	var authorID = "authorID"+countAuthor
+	// var authorID = "authorID"+countAuthor
 
 	// document.getElementById('authorCount').value=countAuthor;
 	countAuthor += 1;
 	// console.log(countAuthor)
 	var inputAuthorName = document.createElement("input")
-	var inputAuthorID = document.createElement("input")
-	inputAuthorID.setAttribute("type", "text")
-	inputAuthorID.setAttribute("placeholder", "Author ID")
-	inputAuthorID.setAttribute("name", authorID)
-	inputAuthorID.setAttribute("id", authorID)
+	// var inputAuthorID = document.createElement("input")
+	// inputAuthorID.setAttribute("type", "text")
+	// inputAuthorID.setAttribute("placeholder", "Author ID")
+	// inputAuthorID.setAttribute("name", authorID)
+	// inputAuthorID.setAttribute("id", authorID)
 	inputAuthorName.setAttribute("type", "text")
 	inputAuthorName.setAttribute("placeholder", "Author Name")
 	inputAuthorName.setAttribute("name", authorName)
 	inputAuthorName.setAttribute("id", authorName)
 	var div = document.getElementById("extraAuthor")
 	
-	div.appendChild(inputAuthorID)
+	// div.appendChild(inputAuthorID)
 	div.appendChild(inputAuthorName)
 	document.getElementById("authorCount").value = countAuthor
 }
@@ -110,10 +110,10 @@ function updateValues(){
 				<label for="authorID">
 					<i class="fas fa-user"></i>
 				</label>
-				<input type="text" name="authorID" placeholder="authorID" id="authorID" required>
+				<!-- <input type="text" name="authorID" placeholder="authorID" id="authorID" required>
 				<label for="authorName">
 					<i class="fas fa-user"></i>
-				</label>
+				</label> -->
 				<input type="text" name="authorName" placeholder="author name" id="authorName" required>
 
 
