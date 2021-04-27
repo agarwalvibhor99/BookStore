@@ -10,6 +10,7 @@ c = conn.cursor()
 # c.execute('DROP Table bookData')
 # c.execute("DROP TABLE Author")
 # c.execute("DROP TABLE writtenBy")
+# c.execute("DROP TABLE rental")
 
 
 c.execute("""CREATE TABLE IF NOT EXISTS Customer (
@@ -132,6 +133,25 @@ c.execute("""CREATE TABLE IF NOT EXISTS Keyword (
             keywordID INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL
 )""")
+
+c.execute("""CREATE TABLE IF NOT EXISTS rentals (
+            orderID TEXT,
+            username TEXT,
+            totalAmt FLOAT,
+            date DATETIME,
+            PRIMARY KEY(orderID),
+            FOREIGN KEY(orderID) REFERENCES orderItem(orderID)
+          )""")
+
+c.execute("""CREATE TABLE IF NOT EXISTS rentalItem (
+            orderID TEXT,
+            ISBN TEXT,
+            quantity INT,
+            unitPrice FLOAT,
+            PRIMARY KEY(orderID, ISBN),
+            FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
+            FOREIGN KEY(orderID) REFERENCES orders(orderID) ON DELETE CASCADE
+          )""")
 
 # c.execute("""CREATE TABLE IF NOT EXISTS Order(
 #             username TEXT,

@@ -8,11 +8,13 @@ import re
 import datetime
 from datetime import timedelta
 import uuid
+from flask_bcrypt import Bcrypt
 
 
 app = Flask(__name__)
 FlaskUUID(app)
 app.secret_key = '123456'
+bcrypt = Bcrypt(app)
 
 
 @app.route('/pythonlogin/', methods=['GET', 'POST'])
@@ -25,22 +27,35 @@ def login():
         # Create variables for easy access
         username = request.form['username']
         password = request.form['password']
+
+        # password = bcrypt.generate_password_hash(password).decode('UTF-8')
         with sql.connect("Book.db") as con:
             cur = con.cursor()
             cur.execute(
-                'SELECT * FROM Customer WHERE username = ? AND password = ?', (username, password,))
+                'SELECT username, password FROM Customer WHERE username = ?', (username,))
             accountCustomer = cur.fetchone()
+            # print(accountCustomer[0])
+            # accountCustomer = accountCustomer[0]
+            print(accountCustomer[1])
+            storedPassword = str(accountCustomer[1])
+            print(storedPassword)
+            authCustomer = bcrypt.check_password_hash(
+                storedPassword, password)
             print("username, password", (username, password))
             cur.execute(
-                'SELECT * FROM Manager WHERE username = ? AND password = ?', (username, password,))
+                'SELECT username, password FROM Manager WHERE username = ?', (username,))
             accountManager = cur.fetchone()
+            print(accountManager)
+            storedPassword = str(accountCustomer[1])
+            authManager = bcrypt.check_password_hash(
+                storedPassword, password)
             # print("username, password", (username, password))
             print("Account Manager: ", accountManager)
             print("Account Customer:", accountCustomer)
             # print("Account is", account)
             # print("Session is:", session['id'])
             cartItem = {}
-            if accountCustomer:
+            if authCustomer:
                 # Create session data, we can access this data in other routes
                 session['loggedin'] = True
                 # session['id'] = account['username']
@@ -49,7 +64,7 @@ def login():
                 session['cartItem'] = cartItem
                 # Redirect to home page
                 return redirect(url_for('home'))
-            elif accountManager:
+            elif authManager:
                 # Create session data, we can access this data in other routes
                 session['loggedin'] = True
                 # session['id'] = account['username']
@@ -92,7 +107,7 @@ def register():
         username = request.form['username']
         password = request.form['password']
         # print(firstName, lastName, phone, address, username, password)
-
+        password = bcrypt.generate_password_hash(password).decode('UTF-8')
         # Check if account exists using MySQL
         with sql.connect("Book.db") as con:
             cursor = con.cursor()
@@ -102,6 +117,7 @@ def register():
             cursor.execute(
                 'SELECT * FROM Manager WHERE username = ?', (username,))
             accountManager = cursor.fetchone()
+            # encrpyt password
             # If account exists show error and validation checks
             if accountCustomer or accountManager:
                 msg = 'Account already exists!'
@@ -589,7 +605,8 @@ def addToCart():
         if request.method == 'POST':
 
             # Create variables for easy access
-            print(request.form)
+            # print(request.form)
+            # print(request.form['submitType'])
             # quantString = 'quantity' + ISBN
             # ISBN = request.form['ISBN']
             # # print("Request form", request.form)
@@ -761,6 +778,7 @@ def addReview():
             # Create variables for easy access
             username = request.form['username']
             ISBN = request.form['ISBN']
+            ISBN = "ISBN"+ISBN
             score = request.form['score']
             if 'comment' in request.form:
                 comment = request.form['comment']
@@ -1188,8 +1206,10 @@ def requestedBooks():
 
 @app.route('/pythonlogin/requestNewCredit', methods=['GET', 'POST'])
 def requestNewCredit():
+    print("hello")
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
+        print(request)
         if request.method == 'POST' and 'name' in request.form:
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
@@ -1485,6 +1505,93 @@ def bestEmployee():
 
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
+
+
+# @app.route('/pythonlogin/addToCartRental', methods=['GET', 'POST'])
+# def addToCartRental():
+#     if 'loggedin' in session and session['type'] == 0:
+#         print("in if")
+#         msg = ''
+#         print(request.form)
+#         # Check if "username", "password" and "email" POST requests exist (user submitted form)
+#         if request.method == 'POST':
+
+#             # Create variables for easy access
+#             # print(request.form)
+#             # print(request.form['submitType'])
+#             # quantString = 'quantity' + ISBN
+#             # ISBN = request.form['ISBN']
+#             # # print("Request form", request.form)
+#             # quantString = 'quantity' + ISBN
+#             # quantity = request.form['quantity']
+
+#             # print("Quantity up", quantity)
+#             # not checking books added 0 from default
+#             # print("details book: ", name, ISBN, date, stock, price,
+#             #       subject, language, noOfPages, authorID, authorName, keyword)
+
+#             # Check if account exists using MySQL
+
+#             with sql.connect("Book.db") as con:
+#                 cursor = con.cursor()
+#                 totalAmt = 0
+#                 orderID = 0
+#                 orderID = uuid.uuid1()
+#                 for key in request.form:
+#                     cursor.execute(
+#                         'SELECT * FROM bookData WHERE ISBN = ?', (key,))
+#                     book = cursor.fetchone()
+#                     print("book info", book)
+#                     msg = "not enough quantity of book " + \
+#                         book[1] + " with ISBN " + key
+#                     # print("quantity when high", int(request.form[key]))
+#                     if(not request.form[key]):
+#                         continue
+#                     qty = int(request.form[key])
+#                     totalAmt += book[6]*qty*0.1
+#                     if(int(book[5]) < int(request.form[key])):
+#                         return render_template('home.html', msg=msg, username=session['username'])
+#                     else:
+#                         newQuantity = book[5]-int(request.form[key])
+#                         cursor.execute(
+#                             'UPDATE bookData SET stock = ? WHERE ISBN=?', (newQuantity, key))
+#                         print("quantity updated")
+
+#                         username = session['username']
+
+#                         ISBN = key
+#                         unitPrice = book[6]
+#                         print("orderID, username, iSBN, qty: ",
+#                               (orderID, username, ISBN, qty))
+#                         cursor.execute(
+#                             'INSERT INTO rentalItem(orderID, ISBN, quantity, unitPrice) VALUES (?, ?, ?, ?)', (orderID.hex, ISBN, qty, unitPrice*.1))
+#                     # add keyword
+
+#                         msg = 'Order successfully placed! Total Amount for your order is $' + \
+#                             str(totalAmt)
+#                 print(totalAmt)
+#                 cursor.execute(
+#                     'INSERT INTO orders(orderID, username, totalAmt, date) VALUES (?, ?, ?, ?)', (orderID.hex, session['username'], totalAmt, datetime.datetime.now(),))
+#                 con.commit()
+#                 orderID = 0
+#                 totalAmt = 0
+#                 # print(existingDict)
+#                 # session['cartItem'] = {ISBN: quantity}
+
+#                 # print("session", session['cartItem'])
+#                 # ADD CODE TO CHECK QUANTITY
+#                 # print(book)
+#                 return render_template("home.html", msg=msg, username=session['username'])
+#                 # If account exists show error and validation checks
+
+#         elif request.method == 'POST':
+#             # Form is empty... (no POST data)
+#             msg = 'Please fill out the form!'
+#             # print(request.form)
+
+#         return redirect(url_for('createOrder'))
+#         # User is not loggedin redirect to login page
+#     return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
