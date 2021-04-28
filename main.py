@@ -1411,6 +1411,15 @@ def cancelOrder():
                     'DELETE FROM orders WHERE orderID = ?', (orderID,))
                 # on cascade not working
                 cursor.execute(
+                    'SELECT ISBN, quantity FROM orderItem WHERE orderID=?', (orderID,))
+                items = cursor.fetchall()
+                print(items)
+                for item in items:
+                    cursor.execute(
+                        'UPDATE bookData SET stock = stock+? WHERE ISBN=?', (item[1], item[0]))
+
+                # STILL UPDATE THE QUANTITY
+                cursor.execute(
                     'DELETE FROM orderItem WHERE orderID = ?', (orderID,))
 
                 con.commit()
@@ -1507,91 +1516,188 @@ def bestEmployee():
     return redirect(url_for('login'))
 
 
-# @app.route('/pythonlogin/addToCartRental', methods=['GET', 'POST'])
-# def addToCartRental():
-#     if 'loggedin' in session and session['type'] == 0:
-#         print("in if")
-#         msg = ''
-#         print(request.form)
-#         # Check if "username", "password" and "email" POST requests exist (user submitted form)
-#         if request.method == 'POST':
+@app.route('/pythonlogin/addToCartRental', methods=['GET', 'POST'])
+def addToCartRental():
+    if 'loggedin' in session and session['type'] == 0:
+        print("in if")
+        msg = ''
+        print(request.form)
+        if request.method == 'POST':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                totalAmt = 0
+                orderID = 0
+                orderID = uuid.uuid1()
+                for key in request.form:
+                    cursor.execute(
+                        'SELECT * FROM bookData WHERE ISBN = ?', (key,))
+                    book = cursor.fetchone()
+                    print("book info", book)
+                    msg = "not enough quantity of book " + \
+                        book[1] + " with ISBN " + key
+                    # print("quantity when high", int(request.form[key]))
+                    if(not request.form[key]):
+                        continue
+                    qty = int(request.form[key])
+                    totalAmt += book[6]*qty*0.1
+                    if(int(book[5]) < int(request.form[key])):
+                        return render_template('home.html', msg=msg, username=session['username'])
+                    else:
+                        newQuantity = book[5]-int(request.form[key])
+                        cursor.execute(
+                            'UPDATE bookData SET stock = ? WHERE ISBN=?', (newQuantity, key))
+                        print("quantity updated")
 
-#             # Create variables for easy access
-#             # print(request.form)
-#             # print(request.form['submitType'])
-#             # quantString = 'quantity' + ISBN
-#             # ISBN = request.form['ISBN']
-#             # # print("Request form", request.form)
-#             # quantString = 'quantity' + ISBN
-#             # quantity = request.form['quantity']
+                        username = session['username']
 
-#             # print("Quantity up", quantity)
-#             # not checking books added 0 from default
-#             # print("details book: ", name, ISBN, date, stock, price,
-#             #       subject, language, noOfPages, authorID, authorName, keyword)
+                        ISBN = key
+                        unitPrice = book[6]
+                        print("orderID, username, iSBN, qty: ",
+                              (orderID, username, ISBN, qty))
+                        cursor.execute(
+                            'INSERT INTO rentalItem(orderID, ISBN, quantity, unitPrice) VALUES (?, ?, ?, ?)', (orderID.hex, ISBN, qty, unitPrice*.1))
+                    # add keyword
 
-#             # Check if account exists using MySQL
+                        msg = 'Order successfully placed! Total Amount for your order is $' + \
+                            str(totalAmt)
+                print(totalAmt)
+                cursor.execute(
+                    'INSERT INTO rentals(orderID, username, totalAmt, date) VALUES (?, ?, ?, ?)', (orderID.hex, session['username'], totalAmt, datetime.datetime.now(),))
+                con.commit()
+                orderID = 0
+                totalAmt = 0
+                # print(existingDict)
+                # session['cartItem'] = {ISBN: quantity}
 
-#             with sql.connect("Book.db") as con:
-#                 cursor = con.cursor()
-#                 totalAmt = 0
-#                 orderID = 0
-#                 orderID = uuid.uuid1()
-#                 for key in request.form:
-#                     cursor.execute(
-#                         'SELECT * FROM bookData WHERE ISBN = ?', (key,))
-#                     book = cursor.fetchone()
-#                     print("book info", book)
-#                     msg = "not enough quantity of book " + \
-#                         book[1] + " with ISBN " + key
-#                     # print("quantity when high", int(request.form[key]))
-#                     if(not request.form[key]):
-#                         continue
-#                     qty = int(request.form[key])
-#                     totalAmt += book[6]*qty*0.1
-#                     if(int(book[5]) < int(request.form[key])):
-#                         return render_template('home.html', msg=msg, username=session['username'])
-#                     else:
-#                         newQuantity = book[5]-int(request.form[key])
-#                         cursor.execute(
-#                             'UPDATE bookData SET stock = ? WHERE ISBN=?', (newQuantity, key))
-#                         print("quantity updated")
+                # print("session", session['cartItem'])
+                # ADD CODE TO CHECK QUANTITY
+                # print(book)
+                return render_template("home.html", msg=msg, username=session['username'])
+                # If account exists show error and validation checks
 
-#                         username = session['username']
+        elif request.method == 'POST':
+            # Form is empty... (no POST data)
+            msg = 'Please fill out the form!'
+            # print(request.form)
 
-#                         ISBN = key
-#                         unitPrice = book[6]
-#                         print("orderID, username, iSBN, qty: ",
-#                               (orderID, username, ISBN, qty))
-#                         cursor.execute(
-#                             'INSERT INTO rentalItem(orderID, ISBN, quantity, unitPrice) VALUES (?, ?, ?, ?)', (orderID.hex, ISBN, qty, unitPrice*.1))
-#                     # add keyword
+        return redirect(url_for('createOrder'))
+        # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
 
-#                         msg = 'Order successfully placed! Total Amount for your order is $' + \
-#                             str(totalAmt)
-#                 print(totalAmt)
-#                 cursor.execute(
-#                     'INSERT INTO orders(orderID, username, totalAmt, date) VALUES (?, ?, ?, ?)', (orderID.hex, session['username'], totalAmt, datetime.datetime.now(),))
-#                 con.commit()
-#                 orderID = 0
-#                 totalAmt = 0
-#                 # print(existingDict)
-#                 # session['cartItem'] = {ISBN: quantity}
 
-#                 # print("session", session['cartItem'])
-#                 # ADD CODE TO CHECK QUANTITY
-#                 # print(book)
-#                 return render_template("home.html", msg=msg, username=session['username'])
-#                 # If account exists show error and validation checks
+@app.route('/pythonlogin/createRental',  methods=['GET', 'POST'])
+def createRental():
+    # Check if user is loggedin
+    if 'loggedin' in session and session['type'] == 0:
+        # User is loggedin show them the home page
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM bookData')
+                book = cursor.fetchall()
 
-#         elif request.method == 'POST':
-#             # Form is empty... (no POST data)
-#             msg = 'Please fill out the form!'
-#             # print(request.form)
+                # If account exists show error and validation checks
+                if not book:
+                    msg = 'There are no books in the store!'
+                else:
+                    print(book)
+                    return render_template('createRental.html', data=book, username=session['username'])
 
-#         return redirect(url_for('createOrder'))
-#         # User is not loggedin redirect to login page
-#     return redirect(url_for('login'))
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/returnRental',  methods=['GET', 'POST'])
+def returnRental():
+    # Check if user is loggedin
+    if 'loggedin' in session and session['type'] == 0:
+        # User is loggedin show them the home page
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM rentals WHERE username=?', (session['username'],))
+                rental = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not rental:
+                    msg = "You don't have any rentals"
+                    return render_template("home.html", msg=msg, username=session['username'])
+                else:
+                    print(rental)
+                    return render_template('returnRental.html', data=rental, username=session['username'])
+        if request.method == 'POST':
+            print("in Post")
+            orderID = request.form['orderID']
+            totalAmt = request.form['totalAmt']
+            print("order, amt", orderID, totalAmt)
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                todayDate = datetime.datetime.now()
+
+                cursor.execute(
+                    'SELECT date, totalAmt FROM rentals WHERE orderID = ?', (orderID,))
+                orderDate = cursor.fetchone()
+                print(orderDate)
+                if orderDate:
+                    orderDate = orderDate[0]
+                    print('orderData[1]', (totalAmt))
+                    # totalAmt = float(orderDate[1])
+                    print("total amt from table", totalAmt)
+                    print("orderDate", orderDate)
+                    orderDate = datetime.datetime.strptime(
+                        orderDate, '%Y-%m-%d %H:%M:%S.%f')
+
+                    # testDate = date = datetime.datetime(2021, 4, 1)
+                    # print("test Date", testDate)
+                    diff = (todayDate-orderDate).days
+                    # diff = (todayDate - testDate).days
+                    diff = float(diff)
+                    print("difference:", diff)
+                    if diff > 7:
+                        totalAmt *= 10
+                        penalty = totalAmt * 0.5*(diff-7.0)
+                        totalAmt = totalAmt*0.1 + penalty
+                        print("total amt, penalty", totalAmt, penalty)
+                        cursor.execute(
+                            'UPDATE Customer SET balance = balance - ? WHERE username=?', (penalty, session['username'],))
+                    cursor.execute(
+                        'SELECT ISBN, quantity from rentalItem WHERE orderID = ?', (orderID,))
+                    rentalItems = cursor.fetchall()
+                    print(rentalItems)
+                    for item in rentalItems:
+                        cursor.execute(
+                            'UPDATE bookData SET stock = stock+? WHERE ISBN=?', (item[1], item[0]))
+                        # print(item[0])
+                    cursor.execute(
+                        'DELETE FROM rentals WHERE orderID = ?', (orderID,))
+                    cursor.execute(
+                        'DELETE FROM rentalItem WHERE orderID = ?', (orderID,))
+                    # cursor.execute(
+                    #     'UPDATE Customer SET balance = balance + ? WHERE username = ?', (totalAmt, session['username'],))
+                    # cursor.execute(
+                    #     'DELETE FROM orders WHERE orderID = ?', (orderID,))
+                    # # on cascade not working
+                    # cursor.execute(
+                    #     'DELETE FROM orderItem WHERE orderID = ?', (orderID,))
+                    con.commit()
+                    if penalty:
+                        msg = "Rental successfuly returned. The total amount charged is $" + \
+                            str(totalAmt) + ". There is no Penalty."
+                    else:
+                        msg = "Rental successfuly returned. The total amount charged is $" + \
+                            str(totalAmt) + \
+                            " which includes a penalty of $" + penalty
+
+            return render_template('home.html', msg=msg, username=session['username'])
+
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':

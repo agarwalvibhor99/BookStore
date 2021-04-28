@@ -6,7 +6,8 @@
 <h2>Home Page</h2>
 <p>Welcome back, {{ username }}!</p>
 <p><a href="{{ url_for('createOrder') }}">Create a New Order</a></p>
-<p><a href="{{ url_for('createOrder') }}">Create a New Rental</a></p>
+<p><a href="{{ url_for('createRental') }}">Create a New Rental</a></p>
+<p><a href="{{ url_for('returnRental') }}">Rental Return</a></p>
 <p><a href="{{ url_for('cancelOrder') }}">Cancel an Order</a></p>
 <p><a href="{{ url_for('buyingSuggestion') }}">Suggested Books</a></p>
 <p><a href="{{ url_for('displayAuthor') }}">Author Informations</a></p>

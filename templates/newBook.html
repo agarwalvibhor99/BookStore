@@ -10,47 +10,26 @@
 	
 function addAuthor(){
 	var authorName = "authorName"+countAuthor
-	// var authorID = "authorID"+countAuthor
-
-	// document.getElementById('authorCount').value=countAuthor;
 	countAuthor += 1;
-	// console.log(countAuthor)
 	var inputAuthorName = document.createElement("input")
-	// var inputAuthorID = document.createElement("input")
-	// inputAuthorID.setAttribute("type", "text")
-	// inputAuthorID.setAttribute("placeholder", "Author ID")
-	// inputAuthorID.setAttribute("name", authorID)
-	// inputAuthorID.setAttribute("id", authorID)
 	inputAuthorName.setAttribute("type", "text")
 	inputAuthorName.setAttribute("placeholder", "Author Name")
 	inputAuthorName.setAttribute("name", authorName)
 	inputAuthorName.setAttribute("id", authorName)
 	var div = document.getElementById("extraAuthor")
-	
-	// div.appendChild(inputAuthorID)
 	div.appendChild(inputAuthorName)
 	document.getElementById("authorCount").value = countAuthor
 }
 function addKeyword(){
 	var keywordName = "keyword"+countKeyword
-	// var keywordID = "keywordID"+countKeyword
-	// document.getElementById('keywordCount').value() = countKeyword;
-	// document.getElementById("keywordCount").value = countKeyword
 	countKeyword += 1;
-	// console.log(countKeyword)
-	// var inputKeywordID = document.createElement("input")
 	
 	var inputKeywordName = document.createElement("input")
-	// inputKeywordID.setAttribute("type", "text")
-	// inputKeywordID.setAttribute("placeholder", "Keyword ID")
-	// inputKeywordID.setAttribute("name", keywordID)
-	// inputKeywordID.setAttribute("id", keywordID)
 	inputKeywordName.setAttribute("type", "text")
 	inputKeywordName.setAttribute("placeholder", "Keyword Name")
 	inputKeywordName.setAttribute("name", keywordName)
 	inputKeywordName.setAttribute("id", keywordName)
 	var div = document.getElementById("extraKeyword")
-	// div.appendChild(inputKeywordID)
 	div.appendChild(inputKeywordName)
 	document.getElementById("keywordCount").value = countKeyword
 
@@ -110,17 +89,12 @@ function updateValues(){
 				<label for="authorID">
 					<i class="fas fa-user"></i>
 				</label>
-				<!-- <input type="text" name="authorID" placeholder="authorID" id="authorID" required>
-				<label for="authorName">
-					<i class="fas fa-user"></i>
-				</label> -->
-				<input type="text" name="authorName" placeholder="author name" id="authorName" required>
 
+				<input type="text" name="authorName" placeholder="author name" id="authorName" required>
 
 				<input type="button" value="Add More Author" onclick="addAuthor()"/>
 				<div id="extraAuthor"></div>
 				
-
 				<label for="stock">
 					<i class="fas fa-user"></i>
 				</label>

@@ -11,7 +11,7 @@ c = conn.cursor()
 # c.execute("DROP TABLE Author")
 # c.execute("DROP TABLE writtenBy")
 # c.execute("DROP TABLE rental")
-
+# c.execute("DELETE FROM rentalItem ")
 
 c.execute("""CREATE TABLE IF NOT EXISTS Customer (
             username TEXT PRIMARY KEY,
@@ -178,7 +178,7 @@ c.execute("""CREATE TABLE IF NOT EXISTS rentalItem (
 # conn.commit()
 # c.execute("""SELECT * FROM Manager""")
 # # c.execute('INSERT INTO Keyword(name) VALUES ("HELLO")')
-# conn.commit()
+conn.commit()
 # c.execute("SELECT keywordID FROM Keyword where name='HELLO'")
 # data = c.fetchone()
 # print(data[0])
