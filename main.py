@@ -36,19 +36,23 @@ def login():
             accountCustomer = cur.fetchone()
             # print(accountCustomer[0])
             # accountCustomer = accountCustomer[0]
-            print(accountCustomer[1])
-            storedPassword = str(accountCustomer[1])
-            print(storedPassword)
-            authCustomer = bcrypt.check_password_hash(
-                storedPassword, password)
-            print("username, password", (username, password))
+            # print(accountCustomer[1])
+            authCustomer = False
+            authManager = False
+            if accountCustomer:
+                storedPassword = str(accountCustomer[1])
+                print(storedPassword)
+                authCustomer = bcrypt.check_password_hash(
+                    storedPassword, password)
+            # print("username, password", (username, password))
             cur.execute(
                 'SELECT username, password FROM Manager WHERE username = ?', (username,))
             accountManager = cur.fetchone()
-            print(accountManager)
-            storedPassword = str(accountCustomer[1])
-            authManager = bcrypt.check_password_hash(
-                storedPassword, password)
+            if accountManager:
+                print(accountManager)
+                storedPassword = str(accountManager[1])
+                authManager = bcrypt.check_password_hash(
+                    storedPassword, password)
             # print("username, password", (username, password))
             print("Account Manager: ", accountManager)
             print("Account Customer:", accountCustomer)
@@ -331,6 +335,8 @@ def newManager():
             username = request.form['username']
             password = request.form['password']
             salary = request.form['salary']
+            password = bcrypt.generate_password_hash(password).decode('UTF-8')
+
             # not checking books added 0 from default
             # print("details book: ", name, ISBN, date, stock, price,
             #       subject, language, noOfPages, authorID, authorName, keyword)
@@ -690,6 +696,7 @@ def viewOrder():
         msg = ''
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'GET':
+            print("in get")
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 username = session['username']
@@ -730,9 +737,10 @@ def viewOrderDetail():
         msg = ''
         orderID = request.args['orderID']
         totalAmt = request.args['totalAmt']
+        print(orderID, totalAmt)
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'GET':
-
+            print("in get")
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 username = session['username']
@@ -900,7 +908,7 @@ def displayReview():
                     review = cursor.fetchall()
                     if not review:
                         msg = "New review for this book, you can add one"
-                        return render_template("addReview.html", msg=msg)
+                        return render_template("addReview.html", msg=msg, username=session["username"])
                     print(review)
                     return render_template('displayReview.html', data=review, username=session['username'])
 
@@ -1085,9 +1093,13 @@ def updateProfile():
         if request.method == 'POST' and ('phone' in request.form or 'address' in request.form or 'password' in request.form):
 
             # Create variables for easy access
-            phone = session['phone']
+            phone = request.form['phone']
             address = request.form['address']
             password = request.form['password']
+            if password:
+                password = bcrypt.generate_password_hash(
+                    password).decode('UTF-8')
+
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 if phone:
@@ -1236,8 +1248,8 @@ def requestNewCredit():
 # route for manager to accept credit
 
 
-@app.route('/pythonlogin/requestedCredit', methods=['GET', 'POST'])
-def requestedCredit():
+@app.route('/pythonlogin/requestedNewCredit', methods=['GET', 'POST'])
+def requestedNewCredit():
     if 'loggedin' in session and session['type'] == 1:
         msg = ''
         # Check if "username", "password" and "email" POST requests exist (user submitted form)

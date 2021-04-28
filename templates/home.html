@@ -5,6 +5,8 @@
 {% block content %}
 <h2>Home Page</h2>
 <p>Welcome back, {{ username }}!</p>
+<div class="msg">Messages: {{ msg }}</div>
+
 <p><a href="{{ url_for('createOrder') }}">Create a New Order</a></p>
 <p><a href="{{ url_for('createRental') }}">Create a New Rental</a></p>
 <p><a href="{{ url_for('returnRental') }}">Rental Return</a></p>
@@ -18,7 +20,7 @@
 <form action="{{ url_for('addTrust') }}" method="post">
     <label for="username">Username</label><br>   
     <input type="text" id="username" name="username">
-    <input type="radio" id="trust" name="type" value="trust">
+    <input type="radio" id="trust" name="type" value="trust" required>
     <label for="type">Trust</label>
     <input type="radio" id="untrust" name="type" value="untrust">
     <label for="type">Untrust</label><br><br>
@@ -78,5 +80,4 @@
             <button type="submit">Request Credits</button>
         </form>
     </div>
-    <div class="msg">{{ msg }}</div>
     {% endblock %}
