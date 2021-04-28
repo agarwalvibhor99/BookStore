@@ -480,12 +480,14 @@ def displayAllBooks():
         msg = ''
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'GET':
-            criteria = request.args['criteria']
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
-                cursor.execute(
-                    'SELECT bookData.*, Author.name,AVG(score) FROM bookData LEFT JOIN Author ON bookData.authorID = Author.authorID LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY Review.ISBN ORDER BY ?', (criteria,))
+                cursor = con.cursor()
+                cursor.execute("SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY bookData.date")
                 book = cursor.fetchall()
+                # cursor.execute(
+                #     'SELECT bookData.*, Author.name,AVG(score) FROM bookData LEFT JOIN Author ON bookData.authorID = Author.authorID LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY Review.ISBN')
+                # book = cursor.fetchall()
 
                 # If account exists show error and validation checks
                 if not book:
@@ -493,6 +495,23 @@ def displayAllBooks():
                 else:
                     print(book)
                     return render_template('displayAllBooks.html', data=book, username=session['username'])
+
+        # elif request.method == 'GET' and request.args['criteria']:
+        #     criteria = request.args['criteria']
+        #     with sql.connect("Book.db") as con:
+        #         cursor = con.cursor()
+        #         cursor.execute("SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY bookData.date")
+        #         book = cursor.fetchall()
+        #         # cursor.execute(
+        #         #     'SELECT bookData.*, Author.name,AVG(score) FROM bookData LEFT JOIN Author ON bookData.authorID = Author.authorID LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY Review.ISBN ORDER BY ?', (criteria,))
+        #         # book = cursor.fetchall()
+
+        #         # If account exists show error and validation checks
+        #         if not book:
+        #             msg = 'There are no books in the store!'
+        #         else:
+        #             print(book)
+        #             return render_template('displayAllBooks.html', data=book, username=session['username'])
 
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
