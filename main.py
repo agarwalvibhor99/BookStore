@@ -628,6 +628,12 @@ def addToCart():
 
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
+                cursor.execute(
+                    "SELECT balance FROM Customer WHERE username = ?", (session['username'],))
+                balance = cursor.fetchone()
+                if balance[0] <= 0:
+                    msg = "You have a Negative Balance. Please add credit to purchase book"
+                    return render_template('home.html', msg=msg, username=session['username'])
                 totalAmt = 0
                 orderID = 0
                 orderID = uuid.uuid1()
@@ -660,7 +666,7 @@ def addToCart():
                         cursor.execute(
                             'INSERT INTO orderItem(orderID, ISBN, quantity, unitPrice) VALUES (?, ?, ?, ?)', (orderID.hex, ISBN, qty, unitPrice))
                     # add keyword
-
+                        cursor.execute('')
                         msg = 'Order successfully placed! Total Amount for your order is $' + \
                             str(totalAmt)
                 print(totalAmt)
