@@ -69,14 +69,14 @@
     </form>
     </div>
     <p><a href="{{ url_for('requestNewBook')}}">Request New Books</a></p>
-    <p><a href="{{ url_for('requestNewCredit')}}">Add Money to Account</a></p>
-    <!-- <div>
+    <!-- <p><a href="{{ url_for('requestNewCredit')}}">Add Money to Account</a></p> -->
+    <div>
         <p>Add Money to Account</p>
         <form action="{{ url_for('requestNewCredit') }}" method="post">
             <label for="amount">Amount</label><br>
             <input type="number" name="amount" placeholder="Amount" id="amount"required><br>
             <button type="submit">Request Credits</button>
         </form>
-    </div> -->
+    </div>
     <div class="msg">{{ msg }}</div>
     {% endblock %}

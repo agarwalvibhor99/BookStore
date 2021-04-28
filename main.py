@@ -1206,30 +1206,101 @@ def requestedBooks():
 
 @app.route('/pythonlogin/requestNewCredit', methods=['GET', 'POST'])
 def requestNewCredit():
-    print("hello")
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
-        print(request)
-        if request.method == 'POST' and 'name' in request.form:
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'POST' and 'amount' in request.form:
+            # Create variables for easy access
+            amount = request.form['amount']
+
+            print(amount)
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 cursor.execute(
                     'SELECT * FROM requestedCredit WHERE username = ?', (session['username'],))
-                request = cursor.fetchone()
-                if request:
-                    msg = "You already have a pending request. Try again later!"
-                cursor.execute('INSERT INTO requestedCredit(date, username, amount) VALUES (?, ?, ?)', (
-                    datetime.datetime.now(), username, amount,))
-                # add keyword
+                creditRequest = cursor.fetchone()
+                if creditRequest:
+                    msg = "You already have a pending credit request."
+                    print("request:", creditRequest)
+                    return render_template('home.html', msg=msg, username=session['username'])
+                else:
+                    cursor.execute('INSERT INTO requestedCredit(date, username, amount) VALUES (?, ?, ?)', (
+                        datetime.datetime.now(), session['username'], amount,))
+#                 # add keyword
                 con.commit()
                 msg = 'Request for credit submitted!'
-        elif request.method == 'POST':
-            # Form is empty... (no POST data)
-            msg = 'Please fill out the form!'
-            print(request.form)
-        return render_template('home.html', msg=msg, username=session['username'])
+                return render_template('home.html', msg=msg, username=session['username'])
+
+            # print("details book: ", name, ISBN, date, stock, price,
+            #       subject, language, noOfPages, authorID, authorName, keyword)
+
+            # Check if account exists using MySQL
+            # print(request.form['authorName'])
+
+        #     with sql.connect("Book.db") as con:
+        #         cursor = con.cursor()
+        #         cursor.execute(
+        #             'SELECT * FROM bookData WHERE ISBN = ?', (finalISBN,))
+        #         book = cursor.fetchone()
+
+        #         cursor.execute(
+        #             'SELECT * FROM requestedBook WHERE ISBN = ?', (finalISBN,))
+        #         requested = cursor.fetchone()
+
+        #         # If account exists show error and validation checks
+        #         if book:
+        #             msg = 'Book already exists!'
+
+        #         elif requested:
+        #             msg = "Book already requested!"
+
+        #         elif not name or not ISBN or not language or not publisher:
+        #             msg = 'Please fill out the form!'
+        #         else:
+        #             # Account doesnt exists and the form data is valid, now insert new account into accounts table
+        #             cursor.execute(
+        #                 'INSERT INTO requestedBook(username, ISBN, name, language, publisher) VALUES (?, ?, ?, ?, ?)', (session['username'], finalISBN, name, language, publisher,))
+
+        #             # add keyword
+        #             con.commit()
+        #             msg = 'You have successfully requested the Book!'
+
+        # elif request.method == 'POST':
+        #     # Form is empty... (no POST data)
+        #     msg = 'Please fill out the form!'
+        #     print(request.form)
+
+        # return render_template('requestNewBook.html', msg=msg, username=session['username'])
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
+
+
+# @app.route('/pythonlogin/requestNewCredit', methods=['GET', 'POST'])
+# def requestNewCredit():
+#     print("hello")
+#     if 'loggedin' in session and session['type'] == 0:
+#         msg = ''
+#         print(request)
+#         if request.method == 'POST' and 'name' in request.form:
+#             with sql.connect("Book.db") as con:
+#                 cursor = con.cursor()
+#                 cursor.execute(
+#                     'SELECT * FROM requestedCredit WHERE username = ?', (session['username'],))
+#                 request = cursor.fetchone()
+#                 if request:
+#                     msg = "You already have a pending request. Try again later!"
+#                 cursor.execute('INSERT INTO requestedCredit(date, username, amount) VALUES (?, ?, ?)', (
+#                     datetime.datetime.now(), username, amount,))
+#                 # add keyword
+#                 con.commit()
+#                 msg = 'Request for credit submitted!'
+#         elif request.method == 'POST':
+#             # Form is empty... (no POST data)
+#             msg = 'Please fill out the form!'
+#             print(request.form)
+#         return render_template('home.html', msg=msg, username=session['username'])
+#         # User is not loggedin redirect to login page
+#     return redirect(url_for('login'))
 
 
 # @app.route('/pythonlogin/requestCredit', methods=['GET', 'POST'])
