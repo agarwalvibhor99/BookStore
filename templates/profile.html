@@ -49,6 +49,13 @@
     <p><a href="{{ url_for('updateProfile')}}">Update your Profile</a></p>
 </div>
 <div>
+    <p>Delete your Profile</p>
+    <form action="{{ url_for('deleteCustomer') }}" method="post">
+
+        <button type="submit">Click here if you are sure you want to Delete your profile. You can't bring your profile back</button>
+    </form>
+</div>
+<div>
     <p>Add Money to your account</p>
         <form action="{{ url_for('requestNewCredit') }}" method="post">
             <label for="amount">Amount</label><br>

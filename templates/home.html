@@ -15,14 +15,18 @@
 <p><a href="{{ url_for('displayAuthor') }}">Author Informations</a></p>
 <p><a href="{{ url_for('addReview') }}">Add a Review</a></p>
 <p><a href="{{ url_for('viewOrder')}}">Check Past Orders</a></p>
+<p><a href="{{ url_for('browseCustomerProfile')}}">Browse Customer Profile</a></p>
+<p><a href="{{ url_for('requestNewBook')}}">Request New Books</a></p>
+<p><a href="{{ url_for('displayAllBooks')}}">Display all Books</a></p>
+
 <div>
 <p>Trust/Un-Trust an User</p>
 <form action="{{ url_for('addTrust') }}" method="post">
     <label for="username">Username</label><br>   
     <input type="text" id="username" name="username">
-    <input type="radio" id="trust" name="type" value="trust" required>
+    <input type="radio" id="trust" name="type" value="Trust" required>
     <label for="type">Trust</label>
-    <input type="radio" id="untrust" name="type" value="untrust">
+    <input type="radio" id="untrust" name="type" value="Not Trusted">
     <label for="type">Untrust</label><br><br>
     <input type="submit" value="Mark User">
 </form>
@@ -70,7 +74,6 @@
         <input type="submit" value="Search">
     </form>
     </div>
-    <p><a href="{{ url_for('requestNewBook')}}">Request New Books</a></p>
     <!-- <p><a href="{{ url_for('requestNewCredit')}}">Add Money to Account</a></p> -->
     <div>
         <p>Add Money to Account</p>

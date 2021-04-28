@@ -411,41 +411,59 @@ def addTrust():
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'POST' and 'username' in request.form:
 
-            # Create variables for easy access
             if request.form['username'] == session['username']:
                 msg = "Can't mark yourself trusted"
                 return render_template('home.html', msg=msg, username=session['username'])
             fromUsername = session['username']
             toUsername = request.form['username']
             reqType = request.form['type']
+            print(fromUsername, toUsername, reqType)
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 cursor.execute(
                     "SELECT * FROM Customer WHERE username = ?", (toUsername,))
                 customer = cursor.fetchone()
                 if not customer:
+                    # print("if not customer")
                     msg = "Invalid Username"
                     return render_template('home.html', msg=msg, username=session['username'])
+                # print("Checking")
                 cursor.execute(
                     "SELECT * FROM Trust WHERE fromUsername = ? AND toUsername=?", (fromUsername, toUsername,))
                 record = cursor.fetchone()
-                if(record):
+                # print((record[2] == 1 and reqType == "Trust")
+                #   or record[2] == 0 and reqType == "Not Trusted")
+                if((record and record[2] == 1 and reqType == "Trust") or (record and record[2] == 0 and reqType == "Not Trusted")):
                     msg = "You have already marked the User"
                     return render_template('home.html', msg=msg, username=session['username'])
-                elif(reqType == "trust"):
+                elif record:
+                    if reqType == "Trust":
+                        cursor.execute(
+                            'UPDATE Customer SET trustCount = trustCount + 2 WHERE username = ?', (request.form['username'],))
+                        cursor.execute(
+                            "UPDATE Trust SET trustScore = 1 WHERE fromUsername = ? AND toUsername = ?", (fromUsername, toUsername,))
+                        msg = "Successfuly updated to Trusted"
+                    elif reqType == "Not Trusted":
+                        cursor.execute(
+                            'UPDATE Customer SET trustCount = trustCount -2 WHERE username = ?', (request.form['username'],))
+                        cursor.execute(
+                            "UPDATE Trust SET trustScore = -1 WHERE fromUsername = ? AND toUsername = ?", (fromUsername, toUsername,))
+                        msg = "Successfuly updated to Not Trusted"
+
+                elif(reqType == "Trust"):
                     cursor.execute(
                         'UPDATE Customer SET trustCount = trustCount + 1 WHERE username = ?', (request.form['username'],))
                     cursor.execute(
                         "INSERT INTO Trust VALUES(?, ?, 1)", (fromUsername, toUsername,))
                     msg = "Successfuly marked Trusted"
-                elif(reqType == "untrust"):
+                elif(reqType == "Not Trusted"):
                     cursor.execute(
                         'UPDATE Customer SET trustCount = trustCount - 1 WHERE username = ?', (request.form['username'],))
                     cursor.execute(
                         "INSERT INTO Trust VALUES(?, ?, -1)", (fromUsername, toUsername,))
                     msg = "Successfuly marked Trusted"
                 con.commit()
-
+                print(msg)
         elif request.method == 'POST':
             # Form is empty... (no POST data)
             msg = 'Please fill out the form!'
@@ -631,7 +649,7 @@ def addToCart():
                 cursor.execute(
                     "SELECT balance FROM Customer WHERE username = ?", (session['username'],))
                 balance = cursor.fetchone()
-                if balance[0] <= 0:
+                if balance[0] < 0:
                     msg = "You have a Negative Balance. Please add credit to purchase book"
                     return render_template('home.html', msg=msg, username=session['username'])
                 totalAmt = 0
@@ -1127,7 +1145,7 @@ def updateProfile():
             msg = 'Please fill out the form!'
             # print(request.form)
 
-        return render_template('updateProfile.html', msg=msg)
+        return render_template('updateProfile.html', msg=msg, username=session['username'])
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
@@ -1438,6 +1456,7 @@ def displayCustomer():
 @app.route('/pythonlogin/deleteCustomer', methods=['GET', 'POST'])
 def deleteCustomer():
     # print("request form", request.form['username'])
+    print('here in delete customer')
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
         print(request)
@@ -1445,6 +1464,7 @@ def deleteCustomer():
         if request.method == 'POST':
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
+                print("inpost")
                 cursor.execute(
                     "DELETE FROM Customer WHERE username = ?", (session['username'],))
                 cursor.execute(
@@ -1464,13 +1484,13 @@ def deleteCustomer():
                     for order in orders:
                         print("orderID:", order)
                         cursor.execute(
-                            "DELETE FROM orderItem WHERE orderID = ?", (order,))
+                            "DELETE FROM orderItem WHERE orderID = ?", (order[0],))
                 cursor.execute(
                     "DELETE FROM orders WHERE username = ?", (session['username'],))
                 cursor.execute(
                     "DELETE FROM requestedBook WHERE username = ?", (session['username'],))
                 cursor.execute(
-                    "DELETE FROM requestedCredit WHERE toUsername = ?", (session['username'],))
+                    "DELETE FROM requestedCredit WHERE username = ?", (session['username'],))
                 msg = "All your Data has been removed from the Book Store System"
                 con.commit()
 
@@ -1507,6 +1527,12 @@ def addToCartRental():
         if request.method == 'POST':
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
+                cursor.execute(
+                    "SELECT balance FROM Customer WHERE username = ?", (session['username'],))
+                balance = cursor.fetchone()
+                if balance[0] < 0:
+                    msg = "You have a Negative Balance. Please add credit to purchase book"
+                    return render_template('home.html', msg=msg, username=session['username'])
                 totalAmt = 0
                 orderID = 0
                 orderID = uuid.uuid1()
@@ -1641,6 +1667,7 @@ def returnRental():
                     # diff = (todayDate - testDate).days
                     diff = float(diff)
                     print("difference:", diff)
+                    penalty = 0
                     if diff > 7:
                         totalAmt *= 10
                         penalty = totalAmt * 0.5*(diff-7.0)
@@ -1674,11 +1701,37 @@ def returnRental():
                     else:
                         msg = "Rental successfuly returned. The total amount charged is $" + \
                             str(totalAmt) + \
-                            " which includes a penalty of $" + penalty
+                            " which includes a penalty of $" + str(penalty)
 
             return render_template('home.html', msg=msg, username=session['username'])
 
     # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/pythonlogin/ browseCustomerProfile', methods=['GET', 'POST'])
+def browseCustomerProfile():
+    if 'loggedin' in session and session['type'] == 0:
+        msg = ''
+        # Check if "username", "password" and "email" POST requests exist (user submitted form)
+        if request.method == 'GET':
+            with sql.connect("Book.db") as con:
+                cursor = con.cursor()
+                cursor.execute(
+                    'SELECT * FROM Customer WHERE username != ?', (session['username'],))
+                customer = cursor.fetchall()
+
+                # If account exists show error and validation checks
+                if not customer:
+                    msg = 'No Customer Registered!'
+                else:
+                    print(customer)
+                    return render_template('browseCustomerProfile.html', data=customer, username=session['username'])
+        # if request.method == 'POST':
+        #     username = request.form[username]
+        #     trust = request.form[trust]
+        #     print(username,)
+        # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
 
