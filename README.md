@@ -65,3 +65,4 @@ Both the Customer and Manager have their Profile view to look at their informati
 
 All the HTML templates are stored in the template folder. The static directory consist of the style.css file which contains all the styling for the website.
 The main.py file that can be found in the home directory that serves the middleware connecting HTML pages with the databse and contains all the code for the functionality
+Add Login Page
