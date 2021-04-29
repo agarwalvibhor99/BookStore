@@ -25,8 +25,8 @@ Werkzeug==1.0.1\
 
 Run main.py file using python3 to start the development server.\
 http://127.0.0.1:5000/  will take you to the login page where you can start registering as a Customer.\
-Fuctionality to Register a new User will be at http://127.0.0.1:5000/.\
-After registering, the customer can login using their credentials which will redirect them to http://127.0.0.1:5000/home \
+Fuctionality to Register a new User will be at http://127.0.0.1:5000/. \
+After registering, the customer can login using their credentials which will redirect them to http://127.0.0.1:5000/home.  \
 This is the Main Home Page for the Customer which contains all the functionality that the Customer will need to access.\
 **For Customer:**
 1. Create new order
@@ -50,8 +50,8 @@ This is the Main Home Page for the Customer which contains all the functionality
 16. A user can choose to delete his profile 
 17. A user can choose to update his profile
 
-All major Customer Functionality will be found on the home page of customer after they login (http://127.0.0.1:5000/home)\
-Functionality to update and delete profile will be found if they go to their profile by selecting it from the menu bar (http://127.0.0.1:5000/profile)\
+All major Customer Functionality will be found on the home page of customer after they login (http://127.0.0.1:5000/home). \
+Functionality to update and delete profile will be found if they go to their profile by selecting it from the menu bar (http://127.0.0.1:5000/profile). \
 
 **For Manager:**
 Manager have all the functinality that a customer has except he can't place an order or create a rental. 
@@ -67,8 +67,8 @@ Additional Functionality for a Manager:
 9. View Best Employee
 10. A user can update his profile
 
-All major functionality that Manager has similar to Customer or the additional facilities can be accessed through the manager home page after they login (http://127.0.0.1:5000/managerhome)
-Functionality to update their profile can be accessed if they go to their profile information by clicking on Profile in the menu bar (http://127.0.0.1:5000/profile).\
+All major functionality that Manager has similar to Customer or the additional facilities can be accessed through the manager home page after they login (http://127.0.0.1:5000/managerhome). \
+Functionality to update their profile can be accessed if they go to their profile information by clicking on Profile in the menu bar (http://127.0.0.1:5000/profile).  \
 
 Both the Customer and Manager have their Profile view to look at their information or to update basic information of their profile.
 
