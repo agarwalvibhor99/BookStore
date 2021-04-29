@@ -1,4 +1,4 @@
-<h1>#Book Store<h1>
+<h1>#Book Store</h1>
 In the project, used: 
 python3
 flask
