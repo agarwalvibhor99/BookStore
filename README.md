@@ -37,8 +37,8 @@ This is the Main Home Page for the Customer which contains all the functionality
 6. Author Informations: Where they can access 1-degree and 2-degree separated authors
 7. Add a review for a book with a optional comment
 8. Check their Old Orders and their details
-         1. Show the orderID and total and option to see more details of order
-         2. Complete detail include the books and quantity with unit price.
+   1. Show the orderID and total and option to see more details of order
+   2. Complete detail include the books and quantity with unit price.
 10. Browse other Customer Profile: Here they can mark a user trusted or not trusted and view their basic information
 11. Request a New Book: Request a book that isn't their in the Book Store already
 12. Display all Books:
