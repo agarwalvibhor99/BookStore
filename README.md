@@ -23,11 +23,11 @@ six==1.15.0\
 toml==0.10.2\
 Werkzeug==1.0.1\
 
-Run main.py file using python3 to start the development server.
-http://127.0.0.1:5000/  will take you to the login page where you can start registering as a Customer..
-Fuctionality to Register a new User will be at http://127.0.0.1:5000/.
-After registering, the customer can login using their credentials which will redirect them to http://127.0.0.1:5000/home
-This is the Main Home Page for the Customer which contains all the functionality that the Customer will need to access.
+Run main.py file using python3 to start the development server.\
+http://127.0.0.1:5000/  will take you to the login page where you can start registering as a Customer.\
+Fuctionality to Register a new User will be at http://127.0.0.1:5000/.\
+After registering, the customer can login using their credentials which will redirect them to http://127.0.0.1:5000/home \
+This is the Main Home Page for the Customer which contains all the functionality that the Customer will need to access.\
 **For Customer:**
 1. Create new order
 2. Create new rental
@@ -39,7 +39,9 @@ This is the Main Home Page for the Customer which contains all the functionality
 8. Check their Old Orders and their details
 9. Browse other Customer Profile: Here they can mark a user trusted or not trusted and view their basic information
 10. Request a New Book: Request a book that isn't their in the Book Store already
-11. Display all Books
+11. Display all Books:
+   i. Can Display Detailed Review for Each Book
+   ii. Can mark a review useful, very useful or not useful
 12. Search Books By Query: They have option to search book based on the Author, Title, Publisher, Language and can also sort them by Publish Date, Average Score, and avarage score by trsuted users
 13. Add Money To Account: They can send request to add money to their account.
 14. Mark Trusted/Untrusted: They can mark a user trusted and untrusted directly using their username
