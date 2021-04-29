@@ -1,9 +1,9 @@
 <h1>#Book Store</h1>
-In the project, used: 
-python3
-flask
-HTML
-JavaScript
+In the project, used: \
+python3 \
+flask \
+HTML \
+JavaScript \
 
 Packages that need to be installed:\
 autopep8==1.5.6\
@@ -21,7 +21,7 @@ pycparser==2.20\
 pysqlite3==0.4.6\
 six==1.15.0\
 toml==0.10.2\
-Werkzeug==1.0.1\
+Werkzeug==1.0.1
 
 Run main.py file using python3 to start the development server.\
 http://127.0.0.1:5000/  will take you to the login page where you can start registering as a Customer.\
@@ -54,7 +54,7 @@ All major Customer Functionality will be found on the home page of customer afte
 Functionality to update and delete profile will be found if they go to their profile by selecting it from the menu bar (http://127.0.0.1:5000/profile). 
 
 **For Manager:**
-Manager have all the functinality that a customer has except he can't place an order or create a rental. 
+Manager have all the functinality that a customer has except he can't place an order or create a rental. \
 Additional Functionality for a Manager:
 1. Add New Books
 2. Add New Manager
