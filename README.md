@@ -33,18 +33,20 @@ This is the Main Home Page for the Customer which contains all the functionality
 2. Create new rental
 3. Return Rental
 4. Cancel an Order: Only that has been placed in last 1 day
-5. Check his suggested Books
+5. Check Recommended Books
 6. Author Informations: Where they can access 1-degree and 2-degree separated authors
-7. Add a review for a book
+7. Add a review for a book with a optional comment
 8. Check their Old Orders and their details
-9. Browse other Customer Profile: Here they can mark a user trusted or not trusted and view their basic information
-10. Request a New Book: Request a book that isn't their in the Book Store already
-11. Display all Books:
+         1. Show the orderID and total and option to see more details of order
+         2. Complete detail include the books and quantity with unit price.
+10. Browse other Customer Profile: Here they can mark a user trusted or not trusted and view their basic information
+11. Request a New Book: Request a book that isn't their in the Book Store already
+12. Display all Books:
    1. Can Display Detailed Review for Each Book
    2. Can mark a review useful, very useful or not useful
-12. Search Books By Query: They have option to search book based on the Author, Title, Publisher, Language and can also sort them by Publish Date, Average Score, and avarage score by trsuted users
-13. Add Money To Account: They can send request to add money to their account.
-14. Mark Trusted/Untrusted: They can mark a user trusted and untrusted directly using their username
+13. Search Books By Query: They have option to search book based on the Author, Title, Publisher, Language and can also sort them by Publish Date, Average Score, and avarage score by trsuted users
+14. Add Money To Account: They can send request to add money to their account.
+15. Mark Trusted/Untrusted: They can mark a user trusted and untrusted directly using their username
 
 **For Manager:**
 Manager have all the functinality that a customer has except he can't place an order or create a rental. 
