@@ -1175,7 +1175,7 @@ def updateProfile():
 # for customer
 
 
-@app.route('/pythonlogin/requestNewBook', methods=['GET', 'POST'])
+@app.route('/requestNewBook', methods=['GET', 'POST'])
 def requestNewBook():
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
@@ -1235,7 +1235,7 @@ def requestNewBook():
 # for Manager
 
 
-@app.route('/pythonlogin/requestedBooks', methods=['GET', 'POST'])
+@app.route('/requestedBooks', methods=['GET', 'POST'])
 def requestedBooks():
     if 'loggedin' in session and session['type'] == 1:
         msg = ''
@@ -1263,7 +1263,7 @@ def requestedBooks():
 # route for user to request credit
 
 
-@app.route('/pythonlogin/requestNewCredit', methods=['GET', 'POST'])
+@app.route('/requestNewCredit', methods=['GET', 'POST'])
 def requestNewCredit():
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
@@ -1295,7 +1295,7 @@ def requestNewCredit():
 # route for manager to accept credit
 
 
-@app.route('/pythonlogin/requestedNewCredit', methods=['GET', 'POST'])
+@app.route('/requestedNewCredit', methods=['GET', 'POST'])
 def requestedNewCredit():
     if 'loggedin' in session and session['type'] == 1:
         msg = ''
@@ -1332,7 +1332,7 @@ def requestedNewCredit():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/buyingSuggestion', methods=['GET', 'POST'])
+@app.route('/buyingSuggestion', methods=['GET', 'POST'])
 def buyingSuggestion():
     if 'loggedin' in session and (session['type'] == 0):
         msg = ''
@@ -1358,7 +1358,7 @@ def buyingSuggestion():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/displayAuthor', methods=['GET', 'POST'])
+@app.route('/displayAuthor', methods=['GET', 'POST'])
 def displayAuthor():
     if 'loggedin' in session and (session['type'] == 1 or session['type'] == 0):
         msg = ''
@@ -1381,7 +1381,7 @@ def displayAuthor():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/degreeSeparation', methods=['GET', 'POST'])
+@app.route('/degreeSeparation', methods=['GET', 'POST'])
 def degreeSeparation():
     if 'loggedin' in session and (session['type'] == 1 or session['type'] == 0):
         msg = ''
@@ -1403,7 +1403,7 @@ def degreeSeparation():
                         return render_template('displayAuthor.html', data=author, username=session['username'])
 
 
-@app.route('/pythonlogin/cancelOrder', methods=['GET', 'POST'])
+@app.route('/cancelOrder', methods=['GET', 'POST'])
 def cancelOrder():
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
@@ -1455,7 +1455,7 @@ def cancelOrder():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/displayCustomer', methods=['GET', 'POST'])
+@app.route('/displayCustomer', methods=['GET', 'POST'])
 def displayCustomer():
     if 'loggedin' in session and session['type'] == 1:
         msg = ''
@@ -1478,7 +1478,7 @@ def displayCustomer():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/deleteCustomer', methods=['GET', 'POST'])
+@app.route('/deleteCustomer', methods=['GET', 'POST'])
 def deleteCustomer():
     # print("request form", request.form['username'])
     print('here in delete customer')
@@ -1523,7 +1523,7 @@ def deleteCustomer():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/bestEmployee', methods=['GET', 'POST'])
+@app.route('/bestEmployee', methods=['GET', 'POST'])
 def bestEmployee():
     if 'loggedin' in session and session['type'] == 1:
         msg = ''
@@ -1543,7 +1543,7 @@ def bestEmployee():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/addToCartRental', methods=['GET', 'POST'])
+@app.route('/addToCartRental', methods=['GET', 'POST'])
 def addToCartRental():
     if 'loggedin' in session and session['type'] == 0:
         print("in if")
@@ -1618,7 +1618,7 @@ def addToCartRental():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/createRental',  methods=['GET', 'POST'])
+@app.route('/createRental',  methods=['GET', 'POST'])
 def createRental():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 0:
@@ -1643,7 +1643,7 @@ def createRental():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/returnRental',  methods=['GET', 'POST'])
+@app.route('/returnRental',  methods=['GET', 'POST'])
 def returnRental():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 0:
@@ -1734,7 +1734,7 @@ def returnRental():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/browseCustomerProfile', methods=['GET', 'POST'])
+@app.route('/browseCustomerProfile', methods=['GET', 'POST'])
 def browseCustomerProfile():
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
