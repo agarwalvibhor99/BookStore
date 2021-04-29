@@ -1,5 +1,4 @@
-# Project
-Book Store
+<h1>#Book Store<h1>
 In the project, used: 
 python3
 flask
@@ -30,33 +29,33 @@ Fuctionality to Register a new User will be at http://127.0.0.1:5000/.
 After registering, the customer can login using their credentials which will redirect them to http://127.0.0.1:5000/home
 This is the Main Home Page for the Customer which contains all the functionality that the Customer will need to access.
 **For Customer:**
-Create new order
-Create new rental
-Return Rental
-Cancel an Order: Only that has been placed in last 1 day
-Check his suggested Books
-Author Informations: Where they can access 1-degree and 2-degree separated authors
-Add a review for a book
-Check their Old Orders and their details
-Browse other Customer Profile: Here they can mark a user trusted or not trusted and view their basic information
-Request a New Book: Request a book that isn't their in the Book Store already
-Display all Books
-Search Books By Query: They have option to search book based on the Author, Title, Publisher, Language and can also sort them by Publish Date, Average Score, and avarage score by trsuted users
-Add Money To Account: They can send request to add money to their account.
-Mark Trusted/Untrusted: They can mark a user trusted and untrusted directly using their username
+1. Create new order
+2. Create new rental
+3. Return Rental
+4. Cancel an Order: Only that has been placed in last 1 day
+5. Check his suggested Books
+6. Author Informations: Where they can access 1-degree and 2-degree separated authors
+7. Add a review for a book
+8. Check their Old Orders and their details
+9. Browse other Customer Profile: Here they can mark a user trusted or not trusted and view their basic information
+10. Request a New Book: Request a book that isn't their in the Book Store already
+11. Display all Books
+12. Search Books By Query: They have option to search book based on the Author, Title, Publisher, Language and can also sort them by Publish Date, Average Score, and avarage score by trsuted users
+13. Add Money To Account: They can send request to add money to their account.
+14. Mark Trusted/Untrusted: They can mark a user trusted and untrusted directly using their username
 
 **For Manager:**
 Manager have all the functinality that a customer has except he can't place an order or create a rental. 
 Additional Functionality for a Manager:
-Add New Books
-Add New Manager
-Update Inventory of Books
-Can manager the request of Credits sent by Customer
-Can manage the request of new books sent by Customer
-Can View Book Statistics 
-Can Look at User Awards
-Display Details of All Customer
-View Best Employee
+1. Add New Books
+2. Add New Manager
+3. Update Inventory of Books
+4. Can manager the request of Credits sent by Customer
+5. Can manage the request of new books sent by Customer
+6. Can View Book Statistics 
+7. Can Look at User Awards
+8. Display Details of All Customer
+9. View Best Employee
 
 Both the Customer and Manager have their Profile view to look at their information or to update basic information of their profile.
 
