@@ -47,6 +47,11 @@ This is the Main Home Page for the Customer which contains all the functionality
 13. Search Books By Query: They have option to search book based on the Author, Title, Publisher, Language and can also sort them by Publish Date, Average Score, and avarage score by trsuted users
 14. Add Money To Account: They can send request to add money to their account.
 15. Mark Trusted/Untrusted: They can mark a user trusted and untrusted directly using their username
+16. A user can choose to delete his profile 
+17. A user can choose to update his profile
+
+All major Customer Functionality will be found on the home page of customer after they login (http://127.0.0.1:5000/home)
+Functionality to update and delete profile will be found if they go to their profile by selecting it from the menu bar (http://127.0.0.1:5000/profile)
 
 **For Manager:**
 Manager have all the functinality that a customer has except he can't place an order or create a rental. 
@@ -60,6 +65,10 @@ Additional Functionality for a Manager:
 7. Can Look at User Awards
 8. Display Details of All Customer
 9. View Best Employee
+10. A user can update his profile
+
+All major functionality that Manager has similar to Customer or the additional facilities can be accessed through the manager home page after they login (http://127.0.0.1:5000/managerhome).
+Functionality to update their profile can be accessed if they go to their profile information by clicking on Profile in the menu bar (http://127.0.0.1:5000/profile).
 
 Both the Customer and Manager have their Profile view to look at their information or to update basic information of their profile.
 
