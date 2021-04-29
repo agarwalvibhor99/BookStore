@@ -5,23 +5,23 @@ flask
 HTML
 JavaScript
 
-Packages that need to be installed:
-autopep8==1.5.6
-bcrypt==3.2.0
-cffi==1.14.5
-click==7.1.2
-Flask==1.1.2
-Flask-Bcrypt==0.7.1
-Flask-UUID==0.2
-itsdangerous==1.1.0
-Jinja2==2.11.3
-MarkupSafe==1.1.1
-pycodestyle==2.7.0
-pycparser==2.20
-pysqlite3==0.4.6
-six==1.15.0
-toml==0.10.2
-Werkzeug==1.0.1
+Packages that need to be installed:\
+autopep8==1.5.6\
+bcrypt==3.2.0\
+cffi==1.14.5\
+click==7.1.2\
+Flask==1.1.2\
+Flask-Bcrypt==0.7.1\
+Flask-UUID==0.2\
+itsdangerous==1.1.0\
+Jinja2==2.11.3\
+MarkupSafe==1.1.1\
+pycodestyle==2.7.0\
+pycparser==2.20\
+pysqlite3==0.4.6\
+six==1.15.0\
+toml==0.10.2\
+Werkzeug==1.0.1\
 
 Run main.py file using python3 to start the development server.
 http://127.0.0.1:5000/  will take you to the login page where you can start registering as a Customer..
