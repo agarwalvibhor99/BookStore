@@ -82,7 +82,8 @@ SELECT authorID FROM Author WHERE name = "Keshav"
 --Books written by X
 SELECT ISBN, authorID FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")
 --cross with table with all information book and authorID--: first Degree
-
+-- SELECT authorID FROM writtenBy, (SELECT ISBN, authorID FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")
+-- ) AS 
 --isbn of books with count>2 in writtenby
 SELECT ISBN count(ISBN) FROM writtenBy GROUP BY ISBN 
 --cross book with condition: 
@@ -106,9 +107,12 @@ update Customer SET balance = -10 WHERE username="victor"
 DELETE FROM Review WHERE score = 5 
 DELETE FROM Trust
 
---Two degre
+--Two degree
 SELECT authorID, ISBN FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorName != "Keshav"
 --big table saare authorid saare isbn cross with ^ condition: isbn same authorID not X
+
+
+
 
 --all authorID and isbn:
 SELECT A.authorID, A.ISBN FROM (SELECT authorID, ISBN FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorName != "Keshav") AS A, writtenBy WHERE A.ISBN = writtenBy.ISBN
@@ -118,10 +122,14 @@ UPDATE Customer SET balance = 0 WHERE username = "victor"
 
 
 --ONE DEGREE SEPARATION
-SELECT authorID, authorName FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =1) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != 1
+SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =8) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != 8
+
+SELECT authorID 
 
 
+SELECT C.authorID FROM writtenBy AS C, writtenBy AS D WHERE D.authorID IN (SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =8) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != 8) AND C.authorID NOT IN ((SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =8) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != 8)) AND D.ISBN = C.ISBN AND C.authorID !=8
 --TWO DEGREE SEPARATION
 
 
-
+DELETE FROM bookData
+DELETE FROM writtenBy

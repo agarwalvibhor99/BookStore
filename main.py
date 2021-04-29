@@ -235,8 +235,13 @@ def newBook():
 
                     cursor.execute(
                         'SELECT authorID FROM Author WHERE name = ?', (authorName,))
+                    print("Author Name,", authorName)
                     author = cursor.fetchone()
+                    print("author", author)
+                    print(author)
+                    authorID = author
                     if not author:
+                        print("Author Not Found")
                         cursor.execute(
                             'INSERT INTO Author(name) VALUES (?)', (authorName,))
                         cursor.execute(
