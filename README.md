@@ -40,8 +40,8 @@ This is the Main Home Page for the Customer which contains all the functionality
 9. Browse other Customer Profile: Here they can mark a user trusted or not trusted and view their basic information
 10. Request a New Book: Request a book that isn't their in the Book Store already
 11. Display all Books:
-   i. Can Display Detailed Review for Each Book
-   ii. Can mark a review useful, very useful or not useful
+   1. Can Display Detailed Review for Each Book
+   2. Can mark a review useful, very useful or not useful
 12. Search Books By Query: They have option to search book based on the Author, Title, Publisher, Language and can also sort them by Publish Date, Average Score, and avarage score by trsuted users
 13. Add Money To Account: They can send request to add money to their account.
 14. Mark Trusted/Untrusted: They can mark a user trusted and untrusted directly using their username
