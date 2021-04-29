@@ -51,11 +51,21 @@ SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trus
 SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN (SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trustCount>0)) AS R ON bookData.ISBN = R.ISBN GROUP BY bookData.ISBN 
 
 --Books a user own
-SELECT ISBN, orderID from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor"
+SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor"
 
 --Order ID of orders with that books in other orders
-SELECT orderID from orderItem  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor") 
+SELECT orderID FROM orderItem  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor") 
+--GET THE USERNAME from this: username of people who own the same book
+SELECT DISTINCT(username) FROM orderItem LEFT JOIN orders ON orderItem.orderID=orders.orderID  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor") 
+--Books that the above users own
+SELECT DISTINCT(ISBN) FROM orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID WHERE username IN (SELECT DISTINCT(username) FROM orderItem LEFT JOIN orders ON orderItem.orderID=orders.orderID  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor") )
+--REMOVING THE BOOK USER ALREADY HAVE
+SELECT ISBN FROM (SELECT DISTINCT(ISBN) FROM orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID WHERE username IN (SELECT DISTINCT(username) FROM orderItem LEFT JOIN orders ON orderItem.orderID=orders.orderID  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor"))) AS A WHERE A.ISBN NOT IN (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor")
+SELECT * FROM bookData WHERE ISBN IN (SELECT ISBN FROM (SELECT DISTINCT(ISBN) FROM orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID WHERE username IN (SELECT DISTINCT(username) FROM orderItem LEFT JOIN orders ON orderItem.orderID=orders.orderID  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor"))) AS A WHERE A.ISBN NOT IN (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor"))
+--ISBN OF  books in other orders
+SELECT ISBN FROM orderItem WHERE orderID IN (SELECT orderID from orderItem  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor") )
 
+--CHANGING BEFORE THIS
 --Books to suggest
 SELECT DISTINCT(ISBN) FROM (SELECT orderID from orderItem  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = "victor")) AS A LEFT JOIN orderItem ON A.orderID = orderItem.orderID 
 
@@ -70,9 +80,12 @@ SELECT * FROM bookData WHERE ISBN IN (SELECT DISTINCT(ISBN) FROM (SELECT orderID
 --get authorID of X
 SELECT authorID FROM Author WHERE name = "Keshav"
 --Books written by X
-SELECT ISBN FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")
+SELECT ISBN, authorID FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")
+--cross with table with all information book and authorID--: first Degree
+
 --isbn of books with count>2 in writtenby
-SELECT ISBN, count(ISBN) FROM writtenBy GROUP BY ISBN 
+SELECT ISBN count(ISBN) FROM writtenBy GROUP BY ISBN 
+--cross book with condition: 
 
 --Select ISBN of book written by X in count>2 table
 SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN )
@@ -84,4 +97,31 @@ SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Aut
 SELECT * FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorName != "Keshav"
 
 --To display correctly on front end instaead of * print authorID and author name only
-SELECT * FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorName != "Keshav"
+
+--to update manager password
+UPDATE Manager SET password="$2b$12$AjDqOYjvfe/b4hS/lI2TqurCMNBevmHrE0rp4aaRhVKARIWfVbx5O"
+
+update Customer SET balance = -10 WHERE username="victor"
+--Correcting Data
+DELETE FROM Review WHERE score = 5 
+DELETE FROM Trust
+
+--Two degre
+SELECT authorID, ISBN FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorName != "Keshav"
+--big table saare authorid saare isbn cross with ^ condition: isbn same authorID not X
+
+--all authorID and isbn:
+SELECT A.authorID, A.ISBN FROM (SELECT authorID, ISBN FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID = (SELECT authorID FROM Author WHERE name = "Keshav")) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorName != "Keshav") AS A, writtenBy WHERE A.ISBN = writtenBy.ISBN
+
+
+UPDATE Customer SET balance = 0 WHERE username = "victor"
+
+
+--ONE DEGREE SEPARATION
+SELECT authorID, authorName FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =1) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != 1
+
+
+--TWO DEGREE SEPARATION
+
+
+

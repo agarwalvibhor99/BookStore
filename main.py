@@ -10,14 +10,13 @@ from datetime import timedelta
 import uuid
 from flask_bcrypt import Bcrypt
 
-
 app = Flask(__name__)
 FlaskUUID(app)
 app.secret_key = '123456'
 bcrypt = Bcrypt(app)
 
 
-@app.route('/pythonlogin/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login():
     # Output message if something goes wrong...
     msg = ''
@@ -85,7 +84,7 @@ def login():
 # http://localhost:5000/python/logout - this will be the logout page
 
 
-@app.route('/pythonlogin/logout')
+@app.route('/logout')
 def logout():
     # Remove session data, this will log the user out
     session.pop('loggedin', None)
@@ -97,7 +96,7 @@ def logout():
 # http://localhost:5000/pythinlogin/register - this will be the registration page, we need to use both GET and POST requests
 
 
-@app.route('/pythonlogin/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     # Output message if something goes wrong...
     msg = ''
@@ -144,7 +143,7 @@ def register():
 
 
 # http://localhost:5000/pythinlogin/home - this will be the home page, only accessible for loggedin users
-@app.route('/pythonlogin/home')
+@app.route('/home')
 def home():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 0:
@@ -158,7 +157,7 @@ def home():
 # http://localhost:5000/pythinlogin/managerhome - this will be the home page, only accessible for loggedin users
 
 
-@app.route('/pythonlogin/managerhome')
+@app.route('/managerhome')
 def managerhome():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 1:
@@ -168,7 +167,7 @@ def managerhome():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/newBook', methods=['GET', 'POST'])
+@app.route('/newBook', methods=['GET', 'POST'])
 def newBook():
     if 'loggedin' in session and session['type'] == 1:
         msg = ''
@@ -198,9 +197,11 @@ def newBook():
 
             finalISBN = "ISBN" + ISBN
 
-            date = date.split("/")
-            date = [int(x) for x in date]
-            date = datetime.datetime(date[2], date[1], date[0])
+            date = date.split("-")
+            year, month, date = [int(x) for x in date]
+            print(year, month, date)
+            date = datetime.datetime(year, month, date)
+            # date = datetime.datetime(date[2], date[1], date[0])
             # print("details book: ", name, ISBN, date, stock, price,
             #       subject, language, noOfPages, authorID, authorName, keyword)
 
@@ -321,7 +322,7 @@ def newBook():
     return redirect(url_for('login'))
 
 
-@ app.route('/pythonlogin/newManager', methods=['GET', 'POST'])
+@ app.route('/newManager', methods=['GET', 'POST'])
 def newManager():
     if 'loggedin' in session and session['type'] == 1:
         msg = ''
@@ -375,7 +376,7 @@ def newManager():
 
 
 # create one profile for maanger and other for customer
-@app.route('/pythonlogin/profile')
+@app.route('/profile')
 def profile():
     # Check if user is loggedin
     if 'loggedin' in session:
@@ -402,7 +403,7 @@ def profile():
 # add for managers option there
 
 
-@app.route('/pythonlogin/addTrust', methods=['GET', 'POST'])
+@app.route('/addTrust', methods=['GET', 'POST'])
 def addTrust():
     # print("request form", request.form['username'])
     if 'loggedin' in session and session['type'] == 0:
@@ -431,9 +432,10 @@ def addTrust():
                 cursor.execute(
                     "SELECT * FROM Trust WHERE fromUsername = ? AND toUsername=?", (fromUsername, toUsername,))
                 record = cursor.fetchone()
+                print('record', record)
                 # print((record[2] == 1 and reqType == "Trust")
                 #   or record[2] == 0 and reqType == "Not Trusted")
-                if((record and record[2] == 1 and reqType == "Trust") or (record and record[2] == 0 and reqType == "Not Trusted")):
+                if((record and record[2] == 1 and reqType == "Trust") or (record and record[2] == -1 and reqType == "Not Trusted")):
                     msg = "You have already marked the User"
                     return render_template('home.html', msg=msg, username=session['username'])
                 elif record:
@@ -474,7 +476,7 @@ def addTrust():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/displayAllBooks', methods=['GET', 'POST'])
+@app.route('/displayAllBooks', methods=['GET', 'POST'])
 def displayAllBooks():
     if 'loggedin' in session and (session['type'] == 1 or session['type'] == 0):
         msg = ''
@@ -517,7 +519,7 @@ def displayAllBooks():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/displayBookQuery', methods=['GET', 'POST'])
+@app.route('/displayBookQuery', methods=['GET', 'POST'])
 def displayBookQuery():
     if 'loggedin' in session and (session['type'] == 1 or session['type'] == 0):
         # print('in here')
@@ -553,7 +555,7 @@ def displayBookQuery():
                 elif (reqType == "AVG(score)"):
                     if not name and not author and not publisher and not language:
                         cursor.execute(
-                            "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY AVG(score)")
+                            "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY AVG(score) DESC")
                         book = cursor.fetchall()
                     else:
                         if not name:
@@ -613,7 +615,7 @@ def displayBookQuery():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/createOrder')
+@app.route('/createOrder')
 def createOrder():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 0:
@@ -638,7 +640,7 @@ def createOrder():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/addToCart', methods=['GET', 'POST'])
+@app.route('/addToCart', methods=['GET', 'POST'])
 def addToCart():
     if 'loggedin' in session and session['type'] == 0:
         print("in if")
@@ -679,14 +681,16 @@ def addToCart():
                         'SELECT * FROM bookData WHERE ISBN = ?', (key,))
                     book = cursor.fetchone()
                     print("book info", book)
-                    msg = "not enough quantity of book " + \
-                        book[1] + " with ISBN " + key
+                    # msg = "not enough quantity of book " + \
+                    #     book[1] + " with ISBN " + key
                     # print("quantity when high", int(request.form[key]))
                     if(not request.form[key]):
                         continue
                     qty = int(request.form[key])
                     totalAmt += book[6]*qty
                     if(int(book[5]) < int(request.form[key])):
+                        msg = "not enough quantity of book " + \
+                            book[1] + " with ISBN " + key
                         return render_template('home.html', msg=msg, username=session['username'])
                     else:
                         newQuantity = book[5]-int(request.form[key])
@@ -731,7 +735,7 @@ def addToCart():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/viewOrder')
+@app.route('/viewOrder')
 def viewOrder():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 0:
@@ -772,7 +776,7 @@ def viewOrder():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/viewOrderDetail')
+@app.route('/viewOrderDetail')
 def viewOrderDetail():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 0:
@@ -819,7 +823,7 @@ def viewOrderDetail():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/addReview', methods=['GET', 'POST'])
+@app.route('/addReview', methods=['GET', 'POST'])
 def addReview():
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
@@ -879,7 +883,7 @@ def addReview():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/updateStock', methods=['GET', 'POST'])
+@app.route('/updateStock', methods=['GET', 'POST'])
 def updateStock():
     if 'loggedin' in session and session['type'] == 1:
         msg = ''
@@ -926,7 +930,7 @@ def updateStock():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/displayReview')
+@app.route('/displayReview')
 def displayReview():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 0:
@@ -959,7 +963,7 @@ def displayReview():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/displayTopReview')
+@app.route('/displayTopReview')
 def displayTopReview():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 0:
@@ -993,7 +997,7 @@ def displayTopReview():
     return redirect(url_for('login'))
 
 
-@ app.route('/pythonlogin/markUsefull', methods=['GET', 'POST'])
+@ app.route('/markUsefull', methods=['GET', 'POST'])
 def markUsefull():
     # Check if user is loggedin
     if 'loggedin' in session and session['type'] == 0:
@@ -1042,7 +1046,7 @@ def markUsefull():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/bookStatistics', methods=['GET', 'POST'])
+@app.route('/bookStatistics', methods=['GET', 'POST'])
 def bookStatistics():
     if 'loggedin' in session and session['type'] == 1:
         # print('in here')
@@ -1087,7 +1091,7 @@ def bookStatistics():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/userAward', methods=['GET', 'POST'])
+@app.route('/userAward', methods=['GET', 'POST'])
 def userAward():
     if 'loggedin' in session and session['type'] == 1:
         # print('in here')
@@ -1127,7 +1131,7 @@ def userAward():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/updateProfile', methods=['GET', 'POST'])
+@app.route('/updateProfile', methods=['GET', 'POST'])
 def updateProfile():
     # print("request form", request.form['username'])
     if 'loggedin' in session and (session['type'] == 0 or session['type'] == 1):
@@ -1336,8 +1340,10 @@ def buyingSuggestion():
         if request.method == 'GET':
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
-                cursor.execute('SELECT * FROM bookData WHERE ISBN IN (SELECT DISTINCT(ISBN) FROM (SELECT orderID from orderItem  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = ?)) AS A LEFT JOIN orderItem ON A.orderID = orderItem.orderID WHERE ISBN NOT IN (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = ?))',
-                               (session['username'], session['username'],))
+                cursor.execute('SELECT * FROM bookData WHERE ISBN IN (SELECT ISBN FROM (SELECT DISTINCT(ISBN) FROM orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID WHERE username IN (SELECT DISTINCT(username) FROM orderItem LEFT JOIN orders ON orderItem.orderID=orders.orderID  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = ?))) AS A WHERE A.ISBN NOT IN (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username =?))', (
+                    session['username'], session['username'],))
+                # cursor.execute('SELECT * FROM bookData WHERE ISBN IN (SELECT DISTINCT(ISBN) FROM (SELECT orderID from orderItem  WHERE ISBN in (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = ?)) AS A LEFT JOIN orderItem ON A.orderID = orderItem.orderID WHERE ISBN NOT IN (SELECT ISBN from orders LEFT JOIN orderItem on orders.orderID = orderItem.orderID where username = ?))',
+                #                (session['username'], session['username'],))
                 book = cursor.fetchall()
 
                 # If account exists show error and validation checks
@@ -1728,7 +1734,7 @@ def returnRental():
     return redirect(url_for('login'))
 
 
-@app.route('/pythonlogin/ browseCustomerProfile', methods=['GET', 'POST'])
+@app.route('/pythonlogin/browseCustomerProfile', methods=['GET', 'POST'])
 def browseCustomerProfile():
     if 'loggedin' in session and session['type'] == 0:
         msg = ''
