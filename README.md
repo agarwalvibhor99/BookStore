@@ -41,7 +41,7 @@ This is the Main Home Page for the Customer which contains all the functionality
    2. Complete detail include the books and quantity with unit price.
 10. Browse other Customer Profile: Here they can mark a user trusted or not trusted and view their basic information
 11. Request a New Book: Request a book that isn't their in the Book Store already
-12. Display all Books:
+12. Display all Books
    1. Can Display Detailed Review for Each Book
    2. Can mark a review useful, very useful or not useful
 13. Search Books By Query: They have option to search book based on the Author, Title, Publisher, Language and can also sort them by Publish Date, Average Score, and avarage score by trsuted users
