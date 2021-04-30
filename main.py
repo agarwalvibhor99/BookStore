@@ -861,7 +861,14 @@ def addReview():
 
                 # If account exists show error and validation checks
                 if review:
-                    msg = 'Review already exists!'
+                    if not comment:
+                        cursor.execute('UPDATE Review SET date = ?, score = ?, comment="" WHERE username = ?', (
+                            datetime.datetime.now(), score, username,))
+                    else:
+                        cursor.execute("UPDATE Review SET date=?, score = ?, comment=? WHERE username=?", (
+                            datetime.datetime.now(), score, comment, username,))
+                    con.commit()
+                    msg = 'Review Updated'
 
                 else:
                     # Account doesnt exists and the form data is valid, now insert new account into accounts table
