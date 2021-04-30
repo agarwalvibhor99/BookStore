@@ -159,3 +159,8 @@ SELECT A.*, avg(score) FROM (SELECT * FROM (SELECT bookData.ISBN, bookData.name,
 
 -- SEARCH BY DATE
 SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like "%" AND publisher like "%" AND language like "%" AND authorName like "%" AND keywordName like "%" GROUP BY ISBN ORDER BY date
+--Sort by date with AVG SCORE
+SELECT A.*, avg(score) FROM (SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like "%" AND publisher like "%" AND language like "%" AND authorName like "%" AND keywordName like "%" GROUP BY ISBN) AS A JOIN Review ON A.ISBN=Review.ISBN GROUP BY A.ISBN ORDER BY date
+
+
+SELECT bookData.*, Author.name, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY bookData.date
