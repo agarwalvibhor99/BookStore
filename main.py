@@ -938,7 +938,7 @@ def updateStock():
 @app.route('/displayReview')
 def displayReview():
     # Check if user is loggedin
-    if 'loggedin' in session and session['type'] == 0:
+    if 'loggedin' in session and (session['type'] == 0 or session['type'] == 1):
         # User is loggedin show them the home page
         msg = ''
         ISBN = request.args['ISBN']
