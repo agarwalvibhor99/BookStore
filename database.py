@@ -15,72 +15,71 @@ c = conn.cursor()
 
 c.execute("""CREATE TABLE IF NOT EXISTS Customer (
             username TEXT PRIMARY KEY,
-            password TEXT,
-            firstName TEXT,
-            lastName TEXT,
-            phone INT,
-            address TEXT,
+            password TEXT NOT NULL,
+            firstName TEXT NOT NULL,
+            lastName TEXT NOT NULL,
+            phone INT NOT NULL,
+            address TEXT NOT NULL,
             balance FLOAT DEFAULT 0,
             dateOfJoining DATETIME DEFAULT CURRENT_TIMESTAMP)""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS Manager (
             username TEXT PRIMARY KEY,
-            password TEXT,
-            firstName TEXT,
-            lastName TEXT,
-            phone INT,
-            address TEXT,
+            password TEXT NOT NULL,
+            firstName TEXT NOT NULL,
+            lastName TEXT NOT NULL,
+            phone INT NOT NULL,
+            address TEXT NOT NULL,
             salary FLOAT DEFAULT 0,
             booksAdded INT DEFAULT 0)""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS bookData (
             ISBN TEXT PRIMARY KEY,
-            name TEXT,
-            language TEXT,
-            publisher text,
-            date DATETIME,
-            stock INT,
-            price float,
-            subject TEXT,
-            noOfPages INT
+            name TEXT NOT NULL,
+            language TEXT NOT NULL,
+            publisher text NOT NULL,
+            date DATETIME NOT NULL,
+            stock INT NOT NULL,
+            price float NOT NULL,
+            subject TEXT NOT NULL,
+            noOfPages INT NOT NULL
             )""")
+
 c.execute("""CREATE TABLE IF NOT EXISTS writtenBy (
-            ISBN TEXT,
-            authorID INT,
+            ISBN TEXT NOT NULL,
+            authorID INT NOT NULL,
             PRIMARY KEY(ISBN, authorID),
             FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
             FOREIGN KEY(authorID) REFERENCES bookData(authorID)
 )""")
+
 c.execute("""CREATE TABLE IF NOT EXISTS Author (
             authorID INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT
+            name TEXT NOT NULL
 )""")
 
-
 c.execute("""CREATE TABLE IF NOT EXISTS orders (
-            orderID TEXT,
-            username TEXT,
-            totalAmt FLOAT,
-            date DATETIME,
-            PRIMARY KEY(orderID),
-            FOREIGN KEY(orderID) REFERENCES orderItem(orderID)
+            orderID TEXT PRIMARY KEY,
+            username TEXT NOT NULL,
+            totalAmt FLOAT NOT NULL,
+            date DATETIME NOT NULL
           )""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS orderItem (
-            orderID TEXT,
-            ISBN TEXT,
-            quantity INT,
-            unitPrice FLOAT,
+            orderID TEXT NOT NULL,
+            ISBN TEXT NOT NULL,
+            quantity INT NOT NULL,
+            unitPrice FLOAT NOT NULL,
             PRIMARY KEY(orderID, ISBN),
             FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
             FOREIGN KEY(orderID) REFERENCES orders(orderID) ON DELETE CASCADE
           )""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS Review (
-            username TEXT,
-            ISBN TEXT,
-            date DATETIME,
-            score INT,
+            username TEXT NOT NULL,
+            ISBN TEXT NOT NULL,
+            date DATETIME NOT NULL,
+            score INT NOT NULL,
             comment TEXT,
             usefulness INT DEFAULT 0,
             PRIMARY KEY(username, ISBN),
@@ -89,21 +88,21 @@ c.execute("""CREATE TABLE IF NOT EXISTS Review (
           )""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS Trust (
-            fromUsername TEXT,
-            toUsername TEXT,
-            trustScore INT,
+            fromUsername TEXT NOT NULL,
+            toUsername TEXT NOT NULL,
+            trustScore INT NOT NULL,
             PRIMARY KEY(fromUsername, toUsername)
           )""")
 c.execute("""CREATE TABLE IF NOT EXISTS Usefulness (
-            fromUsername TEXT,
-            toUsername TEXT,
-            ISBN TEXT,
+            fromUsername TEXT NOT NULL,
+            toUsername TEXT NOT NULL,
+            ISBN TEXT NOT NULL,
             PRIMARY KEY(fromUsername, toUsername, ISBN)
           )""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS requestedBook (
-            username TEXT,
-            ISBN TEXT,
+            username TEXT NOT NULL,
+            ISBN TEXT NOT NULL,
             name TEXT,
             language TEXT,
             publisher text,
@@ -112,17 +111,16 @@ c.execute("""CREATE TABLE IF NOT EXISTS requestedBook (
 )
 """)
 c.execute("""CREATE TABLE IF NOT EXISTS requestedCredit (
-            date DATETIME,
-            username TEXT,
-            amount TEXT,
-            PRIMARY KEY(username),
+            date DATETIME NOT NULL,
+            username TEXT PRIMARY KEY,
+            amount TEXT NOT NULL,
             FOREIGN KEY(username) REFERENCES Customer(username)
 )
 """)
 
 c.execute("""CREATE TABLE IF NOT EXISTS containKeyword (
-            ISBN TEXT,
-            keywordID INT,
+            ISBN TEXT NOT NULL,
+            keywordID INT NOT NULL,
             PRIMARY KEY(ISBN, keywordID),
             FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
             FOREIGN KEY(keywordID) REFERENCES Keyword(keywordID)
@@ -135,19 +133,18 @@ c.execute("""CREATE TABLE IF NOT EXISTS Keyword (
 )""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS rentals (
-            orderID TEXT,
-            username TEXT,
-            totalAmt FLOAT,
-            date DATETIME,
-            PRIMARY KEY(orderID),
+            orderID TEXT PRIMARY KEY,
+            username TEXT NOT NULL,
+            totalAmt FLOAT NOT NULL,
+            date DATETIME NOT NULL,
             FOREIGN KEY(orderID) REFERENCES orderItem(orderID)
           )""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS rentalItem (
-            orderID TEXT,
-            ISBN TEXT,
-            quantity INT,
-            unitPrice FLOAT,
+            orderID TEXT NOT NULL,
+            ISBN TEXT NOT NULL,
+            quantity INT NOT NULL,
+            unitPrice FLOAT NOT NULL,
             PRIMARY KEY(orderID, ISBN),
             FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
             FOREIGN KEY(orderID) REFERENCES orders(orderID) ON DELETE CASCADE
