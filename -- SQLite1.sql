@@ -141,3 +141,21 @@ SELECT ISBN FROM writtenBy WHERE authorID IN (SELECT authorID FROM (SELECT ISBN,
 
 DELETE FROM orders WHERE orderID = "233b8b64a9e311ebbab5a683e7850434"
 DELETE FROM orderItem
+
+
+SELECT bookData.*, AVG(score), A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN (SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trustCount>0)) AS R ON bookData.ISBN = R.ISBN WHERE bookData.name like "%" AND publisher like "%" AND language like "%" AND author like "%" GROUP BY bookData.ISBN ORDER BY AVG(score)
+
+--All book (repititive) with their all authorname and keywords
+SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID
+
+--Now searching on query given by user
+SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like "%" AND publisher like "%" AND language like "%" AND authorName like "%" AND keywordName like "%" GROUP BY ISBN
+
+--ADDING AVG SCORE
+SELECT A.*, avg(score) FROM (SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like "%" AND publisher like "%" AND language like "%" AND authorName like "%" AND keywordName like "%" GROUP BY ISBN) AS A JOIN Review ON A.ISBN=Review.ISBN GROUP BY A.ISBN ORDER BY AVG(score)
+
+--AVG SCORE BY TRUSTED
+SELECT A.*, avg(score) FROM (SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like "%" AND publisher like "%" AND language like "%" AND authorName like "%" AND keywordName like "%" GROUP BY ISBN) AS A JOIN (SELECT * FROM Review WHERE username IN (SELECT username FROM Customer WHERE trustCount>0)) AS Review ON A.ISBN=Review.ISBN GROUP BY A.ISBN ORDER BY AVG(score)
+
+-- SEARCH BY DATE
+SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like "%" AND publisher like "%" AND language like "%" AND authorName like "%" AND keywordName like "%" GROUP BY ISBN ORDER BY date

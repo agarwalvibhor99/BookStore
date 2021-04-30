@@ -534,6 +534,7 @@ def displayBookQuery():
         name = request.args['name']
         publisher = request.args['publisher']
         language = request.args['language']
+        keyword = request.args['keyword']
         reqType = request.args['criteria']
         # Check if "username", "password" and "email" POST requests exist (user submitted form)
         if request.method == 'GET':
@@ -541,9 +542,11 @@ def displayBookQuery():
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 if (reqType == "date"):
-                    if not name and not author and not publisher and not language:
-                        cursor.execute(
-                            "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY bookData.date")
+                    print("IN DATE")
+                    if not name and not author and not publisher and not language and not keyword:
+                        # cursor.execute(
+                        #     "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY bookData.date")
+                        cursor.execute('SELECT A.*, avg(score) FROM (SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like "%" AND publisher like "%" AND language like "%" AND authorName like "%" AND keywordName like "%" GROUP BY ISBN) AS A JOIN Review ON A.ISBN=Review.ISBN GROUP BY A.ISBN ORDER BY date')
                         book = cursor.fetchall()
                     else:
                         if not name:
@@ -554,13 +557,19 @@ def displayBookQuery():
                             publisher = "%"
                         if not language:
                             language = "%"
-                        cursor.execute(
-                            "SELECT bookData.*, AVG(score), A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? GROUP BY bookData.ISBN ORDER BY bookData.date", (name, publisher, language, author,))
+                        if not keyword:
+                            keyword = "%"
+                        # cursor.execute(
+                        #     "SELECT bookData.*, AVG(score), A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? AND keyword like ? GROUP BY bookData.ISBN ORDER BY bookData.date", (name, publisher, language, author, keyword,))
+                        cursor.execute("SELECT A.*, avg(score) FROM (SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like ? AND publisher like ? AND language like ? AND authorName like ? AND keywordName like ? GROUP BY ISBN) AS A JOIN Review ON A.ISBN=Review.ISBN GROUP BY A.ISBN ORDER BY date", (name, publisher, language, author, keyword,))
                         book = cursor.fetchall()
+                        print("book:", book)
                 elif (reqType == "AVG(score)"):
-                    if not name and not author and not publisher and not language:
-                        cursor.execute(
-                            "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY AVG(score) DESC")
+                    print("IN AVG SCORE")
+                    if not name and not author and not publisher and not language and not keyword:
+                        # cursor.execute(
+                        #     "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN GROUP BY bookData.ISBN  ORDER BY AVG(score) DESC")
+                        cursor.execute("SELECT A.*, avg(score) FROM (SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like '%' AND publisher like '%' AND language like '%' AND authorName like '%' AND keywordName like '%' GROUP BY ISBN) AS A JOIN Review ON A.ISBN=Review.ISBN GROUP BY A.ISBN ORDER BY AVG(score)")
                         book = cursor.fetchall()
                     else:
                         if not name:
@@ -571,14 +580,18 @@ def displayBookQuery():
                             publisher = "%"
                         if not language:
                             language = "%"
-                        cursor.execute(
-                            "SELECT bookData.*, AVG(score), A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? GROUP BY bookData.ISBN ORDER BY AVG(score)", (name, publisher, language, author,))
+                        if not keyword:
+                            keyword = "%"
+                        # cursor.execute(
+                        #     "SELECT bookData.*, AVG(score), A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN Review ON bookData.ISBN = Review.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? AND keyword like ? GROUP BY bookData.ISBN ORDER BY AVG(score)", (name, publisher, language, author, keyword, ))
+                        cursor.execute("SELECT A.*, avg(score) FROM (SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like ? AND publisher like ? AND language like ? AND authorName like ? AND keywordName like ? GROUP BY ISBN) AS A JOIN Review ON A.ISBN=Review.ISBN GROUP BY A.ISBN ORDER BY AVG(score)", (name, publisher, language, author, keyword,))
                         book = cursor.fetchall()
 
                 if (reqType == "trustCount"):
                     if not name and not author and not publisher and not language:
-                        cursor.execute(
-                            "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN (SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trustCount>0)) AS R ON bookData.ISBN = R.ISBN GROUP BY bookData.ISBN ORDER BY AVG(score)")
+                        # cursor.execute(
+                        #     "SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN (SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trustCount>0)) AS R ON bookData.ISBN = R.ISBN GROUP BY bookData.ISBN ORDER BY trustCount")
+                        cursor.execute("SELECT A.*, avg(score) FROM (SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like '%' AND publisher like '%' AND language like '%' AND authorName like '%' AND keywordName like '%' GROUP BY ISBN) AS A JOIN (SELECT * FROM Review WHERE username IN (SELECT username FROM Customer WHERE trustCount>0)) AS Review ON A.ISBN=Review.ISBN GROUP BY A.ISBN ORDER BY AVG(score)")
                         book = cursor.fetchall()
                     else:
                         if not name:
@@ -589,8 +602,11 @@ def displayBookQuery():
                             publisher = "%"
                         if not language:
                             language = "%"
-                        cursor.execute(
-                            "SELECT bookData.*, AVG(score), A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN (SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trustCount>0)) AS R ON bookData.ISBN = R.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? GROUP BY bookData.ISBN ORDER BY AVG(score)", (name, publisher, language, author,))
+                        if not keyword:
+                            keyword = "%"
+                        # cursor.execute(
+                            # "SELECT bookData.*, AVG(score), A.name AS author FROM bookData LEFT JOIN (SELECT Author.authorID, name, ISBN FROM writtenBy LEFT JOIN Author ON writtenBy.authorID=Author.authorID) AS A ON bookData.ISBN=A.ISBN LEFT JOIN (SELECT * FROM Review where username IN (SELECT username FROM Customer WHERE trustCount>0)) AS R ON bookData.ISBN = R.ISBN WHERE bookData.name like ? AND publisher like ? AND language like ? AND author like ? AND keyword like ? GROUP BY bookData.ISBN ORDER BY AVG(score)", (name, publisher, language, author, keyword,))
+                        cursor.execute('SELECT A.*, avg(score) FROM (SELECT * FROM (SELECT bookData.ISBN, bookData.name, language, publisher, date, stock, price, subject, noOfPages, Author.authorID, Author.name as authorName, Keyword.keywordID, Keyword.name as keywordName FROM bookData JOIN writtenBy on bookData.ISBN = writtenBy.ISBN JOIN Author ON writtenBy.authorID = Author.authorID JOIN containKeyword ON bookData.ISBN = containKeyword.ISBN JOIN Keyword ON containKeyword.keywordID = Keyword.keywordID) WHERE name like ? AND publisher like ? AND language like ? AND authorName like ? AND keywordName like ? GROUP BY ISBN) AS A JOIN (SELECT * FROM Review WHERE username IN (SELECT username FROM Customer WHERE trustCount>0)) AS Review ON A.ISBN=Review.ISBN GROUP BY A.ISBN ORDER BY AVG(score)', (name, publisher, language, author, keyword,))
                         book = cursor.fetchall()
 
                 # elif (reqType == "publisher"):
@@ -614,7 +630,7 @@ def displayBookQuery():
                     return render_template('home.html', msg=msg, username=session['username'])
                 else:
                     print(book)
-                    return render_template('displayAllBooks.html', data=book, username=session['username'])
+                    return render_template('displayQueryBook.html', data=book, username=session['username'])
 
         # User is not loggedin redirect to login page
     return redirect(url_for('login'))
