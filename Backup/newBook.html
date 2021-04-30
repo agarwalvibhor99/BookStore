@@ -10,26 +10,40 @@
 	
 function addAuthor(){
 	var authorName = "authorName"+countAuthor
+	var authorID = "authorID"+countAuthor
 	countAuthor += 1;
 	var inputAuthorName = document.createElement("input")
+	var inputAuthorID = document.createElement("input")
+	inputAuthorID.setAttribute("type", "text")
+	inputAuthorID.setAttribute("placeholder", "Author ID")
+	inputAuthorID.setAttribute("name", authorID)
+	inputAuthorID.setAttribute("id", authorID)
 	inputAuthorName.setAttribute("type", "text")
 	inputAuthorName.setAttribute("placeholder", "Author Name")
 	inputAuthorName.setAttribute("name", authorName)
 	inputAuthorName.setAttribute("id", authorName)
 	var div = document.getElementById("extraAuthor")
+	div.appendChild(inputAuthorID)
 	div.appendChild(inputAuthorName)
 	document.getElementById("authorCount").value = countAuthor
 }
 function addKeyword(){
 	var keywordName = "keyword"+countKeyword
+	var keywordID = "keywordID"+countKeyword
 	countKeyword += 1;
 	
 	var inputKeywordName = document.createElement("input")
+	var inputKeywordID = document.createElement("input")
+	inputKeywordID.setAttribute("type", "text")
+	inputKeywordID.setAttribute("placeholder", "Keyword ID")
+	inputKeywordID.setAttribute("name", keywordID)
+	inputKeywordID.setAttribute("id", keywordID)
 	inputKeywordName.setAttribute("type", "text")
 	inputKeywordName.setAttribute("placeholder", "Keyword Name")
 	inputKeywordName.setAttribute("name", keywordName)
 	inputKeywordName.setAttribute("id", keywordName)
 	var div = document.getElementById("extraKeyword")
+	div.appendChild(inputKeywordID)
 	div.appendChild(inputKeywordName)
 	document.getElementById("keywordCount").value = countKeyword
 
@@ -89,7 +103,11 @@ function updateValues(){
 				<label for="authorID">
 					<i class="fas fa-user"></i>
 				</label>
+				<input type="text" name="authorID" placeholder="authorID" id="authorID" required>
 
+				<label for="authorName">
+					<i class="fas fa-user"></i>
+				</label>
 				<input type="text" name="authorName" placeholder="author name" id="authorName" required>
 
 				<input type="button" value="Add More Author" onclick="addAuthor()"/>
@@ -125,10 +143,14 @@ function updateValues(){
 					<i class="fas fa-lock"></i>
 				</label>
 				<input type="date" name="date" placeholder="date" id="date" required>
+				<label for="keywordID">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="keywordID" placeholder="keywordID" id="keywordID" required>
+
 				<label for="keyword">
 					<i class="fas fa-lock"></i>
 				</label>
-
 				<input type="keyword" name="keyword" placeholder="keyword" id="keyword" required>
 				<input type="button" value="Add More keyword" onclick="addKeyword()"/>
 				<div id="extraKeyword"></div>

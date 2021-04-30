@@ -10,7 +10,7 @@ c = conn.cursor()
 # c.execute('DROP Table bookData')
 # c.execute("DROP TABLE Author")
 # c.execute("DROP TABLE writtenBy")
-# c.execute("DROP TABLE rental")
+# c.execute("DROP TABLE rentals")
 # c.execute("DELETE FROM rentalItem ")
 
 c.execute("""CREATE TABLE IF NOT EXISTS Customer (
@@ -47,10 +47,7 @@ c.execute("""CREATE TABLE IF NOT EXISTS bookData (
 
 c.execute("""CREATE TABLE IF NOT EXISTS writtenBy (
             ISBN TEXT NOT NULL,
-            authorID INT NOT NULL,
-            PRIMARY KEY(ISBN, authorID),
-            FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
-            FOREIGN KEY(authorID) REFERENCES bookData(authorID)
+            authorID INT NOT NULL
 )""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS Author (
@@ -120,10 +117,7 @@ c.execute("""CREATE TABLE IF NOT EXISTS requestedCredit (
 
 c.execute("""CREATE TABLE IF NOT EXISTS containKeyword (
             ISBN TEXT NOT NULL,
-            keywordID INT NOT NULL,
-            PRIMARY KEY(ISBN, keywordID),
-            FOREIGN KEY(ISBN) REFERENCES bookData(ISBN),
-            FOREIGN KEY(keywordID) REFERENCES Keyword(keywordID)
+            keywordID INT NOT NULL
 )""")
 
 
