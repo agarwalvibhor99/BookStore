@@ -12,34 +12,27 @@
       <tr>
           <th>ISBN</th>
           <th>Name</th>
-          <!-- <th>Author Name</th> -->
           <th>Publisher</th>
           <th>Date Published</th>
           <th>Stock</th>
           <th>Price</th>
           <th>Subject</th>
           <th>Number of Pages</th>
-          <th>Average Rating</th>
           <th></th>
       </tr>
       </thead>    
       <tbody>
-        {% if flag %}
-          <h2> MADARJAAT</h2>
-        {% endif %}
        {% for item in data %}  
        <form action="{{ url_for('displayReview') }}" method="get" autocomplete="off"> 
               <tr>
                   <td style="text-align:center">{{item[0]}}</td>
                   <td style="text-align:center">{{item[1]}}</td>
-                  <!-- <td style="text-align:center">{{item[9]}}</td>  -->
                   <td style="text-align:center">{{item[3]}}</td> 
                   <td style="text-align:center">{{item[4]}}</td> 
                   <td style="text-align:center">{{item[5]}}</td> 
                   <td style="text-align:center">{{item[6]}}</td>
                   <td style="text-align:center">{{item[7]}}</td>
                   <td style="text-align:center">{{item[8]}}</td>
-                  <td style="text-align:center">{{item[9]}}</td>
                   <input type="hidden" name="ISBN" value="{{ item[0] }}"/>
                   <td><input type="submit" value="Show Detailed Review">
               </tr>
@@ -47,5 +40,34 @@
           {% endfor %}
       </tbody>
   </table>
+
+  <p>Author List</p>
+  <table>
+  
+      <thead>
+        <tr>
+            <th>Author ID</th>
+            <th>Name</th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>    
+        <tbody>
+         {% for item in author %}  
+         <form action="{{ url_for('degreeSeparation') }}" method="get" autocomplete="off"> 
+                <tr>
+                    <td style="text-align:center">{{item[0]}}</td>
+                    <td style="text-align:center">{{item[1]}}</td>
+                    <input type="hidden" name="authorID" value="{{ item[0] }}"/>
+                    <td><button type="submit" name="degree" value="onedegree">One Degree Separated</button></td>
+                    <td><button type="submit" name="degree" value="twodegree">Two Degree Separated</button></td>
+                    <!-- <td><input type="submit" name="onedegree" value="One Degree Separated Authors">
+                    <td><input type="submit" name="twodegree" value="Two Degree Separated Authors"> -->
+                </tr>
+              </form>
+            {% endfor %}
+        </tbody>
+    </table>
+  
 
 {% endblock %}

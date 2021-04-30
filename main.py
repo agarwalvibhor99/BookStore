@@ -1396,16 +1396,39 @@ def degreeSeparation():
         if request.method == 'GET' and authorID and degree:
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
+                # inStock = "No"
                 if degree == "onedegree":
+
                     cursor.execute(
                         'SELECT authorID, authorName FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?', (authorID, authorID,))
                     author = cursor.fetchall()
-                    # If account exists show error and validation checks
-                    if not author:
-                        msg = 'No Author Found!'
-                    else:
-                        print(author)
-                        return render_template('displayAuthor.html', data=author, username=session['username'])
+                    cursor.execute(
+                        'SELECT * FROM bookData WHERE ISBN IN (SELECT ISBN FROM writtenBy WHERE authorID IN(SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?))', (authorID, authorID,))
+                    # to get review, might now work fine
+                    # cursor.execute('SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN Review ON bookData.ISBN = Review.ISBN WHERE bookData.ISBN IN (SELECT ISBN FROM writtenBy WHERE authorID IN(SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?)) GROUP BY bookData.ISBN', (authorID, authorID,))
+
+                    book = cursor.fetchall()
+                    print(book)
+
+                    print(book)
+                elif degree == "twodegree":
+                    print("authorID", authorID)
+                    cursor.execute('SELECT * FROM Author WHERE authorID IN (SELECT C.authorID FROM writtenBy AS C, writtenBy AS D WHERE D.authorID IN (SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?) AND C.authorID NOT IN ((SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?)) AND D.ISBN = C.ISBN AND C.authorID !=?)', (authorID, authorID, authorID, authorID, authorID,))
+                    author = cursor.fetchall()
+                    print("author:", author)
+                    # cursor.execute('SELECT * FROM bookData WHERE ISBN IN (SELECT ISBN FROM writtenBy WHERE authorID IN(SELECT C.authorID FROM writtenBy AS C, writtenBy AS D WHERE D.authorID IN (SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID = ?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?) AND C.authorID NOT IN ((SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != 8)) AND D.ISBN = C.ISBN AND C.authorID !=?))', (authorID, authorID, authorID, authorID,))
+                    # cursor.execute('SELECT bookData.*, AVG(score) FROM bookData LEFT JOIN Review ON bookData.ISBN = Review.ISBN WHERE bookData.ISBN IN (SELECT ISBN FROM writtenBy WHERE authorID IN(SELECT C.authorID FROM writtenBy AS C, writtenBy AS D WHERE D.authorID IN (SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID = ?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?) AND C.authorID NOT IN ((SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != 8)) AND D.ISBN = C.ISBN AND C.authorID !=?)) GROUP BY bookData.ISBN', (authorID, authorID, authorID, authorID,))
+                    cursor.execute('SELECT * FROM bookData WHERE ISBN IN (SELECT ISBN FROM writtenBy WHERE authorID IN (SELECT C.authorID FROM writtenBy AS C, writtenBy AS D WHERE D.authorID IN (SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?) AND C.authorID NOT IN ((SELECT authorID FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?)) AND D.ISBN = C.ISBN AND C.authorID !=?))', (authorID, authorID, authorID, authorID, authorID,))
+                    book = cursor.fetchall()
+                    print("book:", book)
+
+                if not author:
+                    msg = 'No Author Found!'
+                    return render_template('home.html', msg=msg, username=session['username'])
+                else:
+                    print(author)
+                    return render_template("separatedSuggestion.html", data=book, author=author, username=session['username'])
+                    # return render_template('displayAuthor.html', data=author, username=session['username'])
 
 
 @app.route('/cancelOrder', methods=['GET', 'POST'])
