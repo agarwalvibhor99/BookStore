@@ -1396,7 +1396,6 @@ def degreeSeparation():
             with sql.connect("Book.db") as con:
                 cursor = con.cursor()
                 if degree == "onedegree":
-
                     cursor.execute(
                         'SELECT authorID, authorName FROM (SELECT ISBN, writtenBy.authorID, name AS authorName FROM writtenBy LEFT JOIN Author ON writtenBy.authorID = Author.authorID WHERE ISBN IN (SELECT ISBN FROM (SELECT ISBN FROM writtenBy WHERE authorID =?) AS A WHERE A.ISBN IN (SELECT ISBN FROM writtenBy GROUP BY ISBN ))) WHERE authorID != ?', (authorID, authorID,))
                     author = cursor.fetchall()
@@ -1417,7 +1416,7 @@ def degreeSeparation():
                     msg = 'No Author Found!'
                     return render_template('home.html', msg=msg, username=session['username'])
                 else:
-                    print(author)
+
                     return render_template("separatedSuggestion.html", data=book, author=author, username=session['username'])
                     # return render_template('displayAuthor.html', data=author, username=session['username'])
 
